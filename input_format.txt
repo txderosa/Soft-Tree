@@ -1,0 +1,39 @@
+<G>
+<V> <E>
+<v1> <v2> <w>
+...
+...
+...
+<V> <E>
+<v1> <v2> <w>
+...
+...
+...
+
+The first line of a file is of the form: <G>
+where G is the number of graphs inside the file.
+
+For each graph:
+    - The first line is of the form: <V> <E>
+      where V is the number of vertices, and E is the number of edges 
+      in the graph.
+
+    - Subsequent lines are of the format: <v1> <v2> <w>
+      where v1, v2 are the IDs of a vertex, and w is the weight of the
+      edge between v1 and v2.
+      
+    - NOTE: edges are ordered by the first vertex, then by the second
+      i.e. If there are edges: (1,4) (2,3) (1,2) (2,1) (1,5).
+      	   Then edges with the first vertex as 1 will appear before
+	   edges with the first vertex as 2. Within the group of edges 
+	   with the same first vertex, edges are ordered by the second
+	   vertex.
+	   The edges above would appear as follows:
+	   1 2
+	   1 4
+	   1 5
+	   2 1
+	   2 3
+	   Weight of edges not shown.
+
+NOTE: for our project, we will assume that all files are correctly formatted. 
