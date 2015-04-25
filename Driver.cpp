@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
 
-/*
+
 #include "Graph.h"
 #include "MST.h"
-#include "Timer.h"
-*/
+//#include "Timer.h"
+
 
 #define DEBUG 1 // 1 to turn debug on
 
@@ -43,31 +43,35 @@ int main(int argc, char **argv){
     // build graph
     fin >> nVertices;
     fin >> nEdges;
-    //Graph graph(nVertices);
+    Graph graph(nVertices);
     for(int e = 0; e < nEdges; e++){
       fin >> v1;
       fin >> v2;
       fin >> weight;
-      /*
       Edge edge;
       edge.u = v1;
       edge.v = v2;
       edge.weight = weight;
-      graph.addEdge(edge);
-      */
+      graph.addEdge(edge);  
     }
     
+    if(DEBUG){
+      std::cerr << graph.numVertices() << " vertices, " << graph.numEdges() << " edges" << std::endl;
+      graph.showEdges();
+      graph.showAdj(false);
+    }
+
     /*
     // run algorithms and time
-    Timer prim_timer();
-    prim_timer.start();
-    Prim(graph);
-    prim_timer.end();
-
     Timer kruskal_timer();
     kruskal_timer.start();
     Kruskal(graph);
     kruskal_timer.end();
+
+    Timer prim_timer();
+    prim_timer.start();
+    Prim(graph);
+    prim_timer.end();
 
     Timer soft_timer();
     soft_timer.start();
@@ -77,8 +81,14 @@ int main(int argc, char **argv){
 
     // report timings
     fout << "Graph " << i+1 << ": " << nVertices << " vertices, " << nEdges << " edges" << std::endl;
+    fout << "Kruskal: " << 0.0 << std::endl;
+    // print out MST for debugging
+    fout << "Prim: " << 0.0 << std::endl;
+    // print out MST for debugging
+    fout << "Soft Heap: " << 0.0 << std::endl;
+    // print out MST for debugging
     
   }
-
+  
   return 0;
 }
