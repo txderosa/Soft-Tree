@@ -46,7 +46,9 @@ int main(int argc, char **argv){
     Graph graph(nVertices);
     for(int e = 0; e < nEdges; e++){
       fin >> v1;
+      //fin >> node1.name;
       fin >> v2;
+      //fin >> node2.name;
       fin >> weight;
       Edge edge;
       edge.u = v1;

@@ -2,6 +2,12 @@
 
 Graph Prim(Graph g){
   std::cerr << "Called Prim(Graph)" << std::endl;
+  vector<int> Q;
+  for(int i = 0; i < g.numVertices(); i++)
+  {
+    
+
+
   return Graph();
 }
 
