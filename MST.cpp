@@ -1,16 +1,33 @@
 #include "MST.h"
 
+bool keyComp(Vertex v1, Vertex v2)
+{
+  if(v1.key() > v2.key)
+  {
+    return true;
+  }
+  return false;
+}
+
 Graph Prim(Graph g){
   std::cerr << "Called Prim(Graph)" << std::endl;
-  vector<int> Q;
-  for(int i = 0; i < g.numVertices(); i++)
+  vector<Vertex> Q;
+  Vertex r = g.vertex(0);
+  for(int i = 1; i < g.numVertices(); i++)
   {
     //Do stuff
-    g.setParent(NULL);
-    g.setKey(INFINITY);
+    g.vertex(i).setKey(INFINITY);
+    Q.push_back(g.vertex(i));
+  }
+  r.setKey(0);
+  Q.push_back(r);
+  std::make_heap(Q.begin(), Q.end(), keyCompare);
+  //while(Q.size() > 0)
+  {
     
   
   }
+}
     
 
 
