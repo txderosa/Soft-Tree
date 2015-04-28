@@ -1,11 +1,9 @@
 #include <iostream>
 #include <fstream>
 
-
 #include "Graph.h"
 #include "MST.h"
 //#include "Timer.h"
-
 
 #define DEBUG 1 // 1 to turn debug on
 
@@ -36,7 +34,7 @@ int main(int argc, char **argv){
   }
  
   /*** parse file and create graph ***/
-  int nGraphs, nVertices, nEdges, v1, v2 , weight;
+  int nGraphs, nVertices, nEdges;//, v1, v2 , weight;
   fin >> nGraphs;
   fout << "There are " << nGraphs << " graphs in " << argv[1] << std::endl;
   for(int i = 0; i < nGraphs; i++){
@@ -45,14 +43,10 @@ int main(int argc, char **argv){
     fin >> nEdges;
     Graph graph(nVertices);
     for(int e = 0; e < nEdges; e++){
-      fin >> v1;
-      fin >> v2;
-      fin >> weight;
       Edge edge;
-      edge.u = v1;
-      edge.v = v2;
-      edge.weight = weight;
-      graph.addEdge(edge);  
+      fin >> edge;
+      if(DEBUG) std::cerr << "received edge: " << edge << std::endl;
+      graph.insertEdge(edge);  
     }
     
     if(DEBUG){
