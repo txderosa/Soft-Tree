@@ -5,10 +5,10 @@
 
 #include "Graph.h"
 
-Graph Prim(Graph g);
+Graph Prim(Graph g, Graph &mst);
 
-Graph Kruskal(Graph g);
+Graph Kruskal(Graph g, Graph &mst);
 
-Graph Soft(Graph g);
+Graph Soft(Graph g, Graph &mst);
 
 #endif

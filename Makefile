@@ -4,6 +4,7 @@ SRC = \
 	Driver.cpp \
 	MST.cpp \
 	Graph.cpp \
+	DisjointComps.cpp \
 
 OBJ_FILES := $(SRC:.cpp=.o)
 
