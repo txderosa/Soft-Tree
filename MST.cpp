@@ -6,6 +6,8 @@ Graph Prim(Graph g){
   for(int i = 0; i < g.numVertices(); i++)
   {
     //Do stuff
+    g.setParent(NULL);
+    g.setKey(INFINITY);
     
   
   }
