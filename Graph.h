@@ -10,11 +10,15 @@ typedef struct edge_struct{
   int v;
   int weight;
 } Edge;
-/*
+
 typedef struct vertice_struct{
   string name;
+  std::vector<Edge> edgeList;
+  std::vector<Node> adjList;
+  int key;
+  Node parent;
 } Node;
-*/
+
 typedef std::pair<int,int> Neighbor;
 
 class Graph{

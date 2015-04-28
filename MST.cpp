@@ -5,6 +5,9 @@ Graph Prim(Graph g){
   vector<int> Q;
   for(int i = 0; i < g.numVertices(); i++)
   {
+    //Do stuff
+  
+  }
     
 
 
@@ -14,6 +17,7 @@ Graph Prim(Graph g){
 Graph Kruskal(Graph g){
   std::cerr << "Called Kruskal(Graph)" << std::endl;
   return Graph();
+
 }
 
 Graph Soft(Graph g){
