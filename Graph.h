@@ -22,6 +22,8 @@ class Graph{
  public:
   Graph();
   Graph(int v);
+  
+  Graph& operator=(const Graph &g);
 
   int insertEdge(Edge e);
   int insertEdge(const int v1, const int v2, const int w);
@@ -39,10 +41,13 @@ class Graph{
 
   std::vector<Edge> edges(void);
 
-  void showAdj(bool verbose) const;
-  void showEdges(void) const;
+  void printEdges(std::ostream &out);
 
   ~Graph();
+
+  /*** for debugging ***/
+  void showAdj(bool verbose) const;
+  void showEdges(void) const;
 
 }; // end of class Graph
 
