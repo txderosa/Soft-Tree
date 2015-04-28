@@ -8,6 +8,8 @@ Graph::Graph(){
   nEdges = 0;
   std::vector< std::vector<Neighbor> > list (nVertices, std::vector<Neighbor>());
   adjList = list;
+  for(int i = 0; i < nVertices; i++)
+    vertexList.push_back(Vertex(i));
 }
 
 Graph::Graph(int v){
@@ -16,20 +18,22 @@ Graph::Graph(int v){
   nEdges = 0;
   std::vector< std::vector<Neighbor> > list (nVertices, std::vector<Neighbor>());
   adjList = list;
+  for(int i = 0; i < nVertices; i++)
+    vertexList.push_back(Vertex(i));  
 }
 
-int Graph::addEdge(const Edge e){
+int Graph::insertEdge(Edge e){
   if(DEBUG) std::cerr << "Called Graph::addEdge(Edge)" << std::endl;
-  int v1 = e.u;
-  int v2 = e.v;
-  int w = e.weight;
-
+  int v1 = e.u();
+  int v2 = e.v();
+  int w = e.weight();
+  
   // check for valid vertices
-  if(v1 >= nVertices){
+  if( (v1 >= nVertices) || (v1 < 0) ){
     std::cerr << "Graph: vertex not in graph: " << v1 << std::endl;
     exit(EXIT_FAILURE);
   }
-  if(v2 >= nVertices){
+  if( (v2 >= nVertices) | (v2 < 0) ){
     std::cerr << "Graph: vertex not in graph: " << v2 << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -40,15 +44,30 @@ int Graph::addEdge(const Edge e){
   adjList[v2].push_back(std::make_pair(v1, w));
   // add Edge to edgeList
   edgeList.push_back(e);
-  nEdges++;
+  nEdges++;  
 
-  /*
-  for(std::vector< std::pair<int,int> >::iterator it = adjList[v1].begin(); it != adjList[v1].end(); it++){
-    if(it->second == v2){
+  return w;
+}
 
-    }
+int Graph::insertEdge(const int v1, const int v2, const int w){
+  if(DEBUG) std::cerr << "Called Graph::addEdge(const int, const int, const int)" << std::endl;
+  // check for valid vertices
+  if( (v1 >= nVertices) || (v1 < 0) ){
+    std::cerr << "Graph: vertex not in graph: " << v1 << std::endl;
+    exit(EXIT_FAILURE);
   }
-  */
+  if( (v2 >= nVertices) || (v2 < 0) ){
+    std::cerr << "Graph: vertex not in graph: " << v2 << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  
+  // add v2 into adjacency list of v1
+  adjList[v1].push_back(std::make_pair(v2, w));
+  // add v1 into adjacency list of v2
+  adjList[v2].push_back(std::make_pair(v1, w));
+  // add Edge to edgeList
+  edgeList.push_back(Edge(v1,v2,w));
+  nEdges++;
 
   return w;
 }
@@ -61,6 +80,10 @@ int Graph::numEdges(void) const{
   return nEdges;
 }
 
+Vertex& Graph::vertex(int vertexID){
+  return vertexList[vertexID];
+}
+
 std::vector<Neighbor> Graph::adj(int v){
   if(DEBUG) std::cerr << "Called Graph::adj(int)" << std::endl;
   if(v >= nVertices){
@@ -68,6 +91,11 @@ std::vector<Neighbor> Graph::adj(int v){
     exit(EXIT_FAILURE);
   }
   return adjList[v];
+}
+
+std::vector<Edge> Graph::edges(void){
+  if(DEBUG) std::cerr << "Called Graph::edges()" << std::endl;
+  return edgeList;
 }
 
 void Graph::showAdj(bool verbose) const{
@@ -93,8 +121,13 @@ void Graph::showEdges(void) const{
     std::cerr << "Called Graph::showEdges(void)" << std::endl;
     std::cerr << "Edge List:" << std::endl;
     for(std::vector<Edge>::const_iterator it = edgeList.begin(); it != edgeList.end(); it++){
-      std::cerr << it->u << " " << it->v << " " << it->weight << std::endl;
+      std::cerr << it->u() << " " << it->v() << " " << it->weight() << std::endl;
     }
   }
+  
+}
+
+Graph::~Graph(){
+  if(DEBUG) std::cerr << "Called Graph::~Graph() [destructor]" << std::endl;
   
 }
