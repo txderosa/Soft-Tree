@@ -1,0 +1,69 @@
+There are <G> graphs in <FILE>
+Graph <n>: <V> vertices, <E> edges
+Kruskal: <T>
+<v1> <v2> <w>
+...
+...
+...
+Prim: <T>
+<v1> <v2> <w>
+...
+...
+...
+Soft Heap: <T>
+<v1> <v2> <w>
+...
+...
+...
+Graph <n>: <V> vertices, <E> edges
+Kruskal: <T>
+<v1> <v2> <w>
+...
+...
+...
+Prim: <T>
+<v1> <v2> <w>
+...
+...
+...
+Soft Heap: <T>
+<v1> <v2> <w>
+...
+...
+...
+
+The first line of a file is of the form: 
+    There are <G> graphs in <FILE>
+    where G is the number of graphs inside the input file, FILE.
+
+For each graph:
+    - The first line is of the form: 
+      Graph <n>: <V> vertices, <E> edges
+      where n is the number of the graph (ranges from 1 to G),
+      V is the number of vertices, and E is the number of edges
+      in the graph.
+
+    - For each algorithm:
+       	  * The top line is of the form: <A>: <T>
+	    where A is the name of the algorithm, and T is the time
+	    the algorithm took to find a MST of the graph.
+
+	  If in debugging mode:
+	  * Subsequent lines are of the format: <v1> <v2> <w>
+	    where v1, v2 are the IDs of a vertex, and w is the weight
+	    of the edge between v1 and v2.
+
+	  * NOTE: edges are ordered by the first vertex, then by the
+	    second
+	    i.e. If there are edges: (0,3) (1,2) (0,1) (1,0) (0,4).
+	    	 Then edges with the first vertex as 1 will appear
+		 before edges with the first vertex as 2. Within
+		 the group of edges with the same first vertex,
+		 edges are ordered by the second vertex.
+		 The edges above would appear as follows:
+		 0 1
+		 0 3
+		 0 4
+		 1 0
+		 1 2
+      		 Weight of edges not shown.
