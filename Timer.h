@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include <iostream>
+#include <iomanip>
 #include <chrono>
 
 class Timer{
@@ -21,6 +22,8 @@ class Timer{
   void end(void);
   double elapsedSeconds(void);
   double elapsedMicro(void);
+
+  void printElapsedSeconds(std::ostream &out);
 
   ~Timer();
 
