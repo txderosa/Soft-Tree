@@ -22,8 +22,22 @@ Graph::Graph(int v){
     vertexList.push_back(Vertex(i));  
 }
 
+Graph& Graph::operator=(const Graph &g){
+  if(DEBUG) std::cerr << "Called Graph::operator=(const Graph&) [assignment operator]" << std::endl;
+  // check for self-assignment, only copy if different objects
+  if(this != &g){
+    nVertices = g.nVertices;
+    nEdges = g.nEdges;
+    adjList = g.adjList;
+    vertexList = g.vertexList;
+    edgeList = g.edgeList;
+  }
+
+  return (*this);
+}
+
 int Graph::insertEdge(Edge e){
-  if(DEBUG) std::cerr << "Called Graph::addEdge(Edge)" << std::endl;
+  if(DEBUG) std::cerr << "Called Graph::insertEdge(Edge)" << std::endl;
   int v1 = e.u();
   int v2 = e.v();
   int w = e.weight();
@@ -50,7 +64,7 @@ int Graph::insertEdge(Edge e){
 }
 
 int Graph::insertEdge(const int v1, const int v2, const int w){
-  if(DEBUG) std::cerr << "Called Graph::addEdge(const int, const int, const int)" << std::endl;
+  if(DEBUG) std::cerr << "Called Graph::insertEdge(const int, const int, const int)" << std::endl;
   // check for valid vertices
   if( (v1 >= nVertices) || (v1 < 0) ){
     std::cerr << "Graph: vertex not in graph: " << v1 << std::endl;
@@ -98,6 +112,21 @@ std::vector<Edge> Graph::edges(void){
   return edgeList;
 }
 
+void Graph::printEdges(std::ostream &out){
+  out << "Called Graph::showEdges(void)" << std::endl;
+  out << "Edge List:" << std::endl;
+  for(std::vector<Edge>::const_iterator it = edgeList.begin(); it != edgeList.end(); it++){
+    out << it->u() << " " << it->v() << " " << it->weight() << std::endl;
+  }
+  
+}
+
+Graph::~Graph(){
+  if(DEBUG) std::cerr << "Called Graph::~Graph() [destructor]" << std::endl;
+  
+}
+
+/*** for debugging ***/
 void Graph::showAdj(bool verbose) const{
   if(DEBUG){
     std::cerr << "Called Graph::showAdj(bool)" << std::endl;
@@ -124,10 +153,5 @@ void Graph::showEdges(void) const{
       std::cerr << it->u() << " " << it->v() << " " << it->weight() << std::endl;
     }
   }
-  
-}
-
-Graph::~Graph(){
-  if(DEBUG) std::cerr << "Called Graph::~Graph() [destructor]" << std::endl;
   
 }
