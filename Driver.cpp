@@ -79,13 +79,10 @@ int main(int argc, char **argv){
     */
 
     // report timings
-    std::streamsize prec;
     fout << "Graph " << i+1 << ": " << nVertices << " vertices, " << nEdges << " edges" << std::endl;
     
-    prec = fout.std::ios_base::precision();    
-    fout << "Kruskal: " << std::fixed << std::setprecision(7) << kruskal_timer.elapsedMicro()/1000000.0 << std::endl;
-    fout.unsetf(std::ios_base::fixed);
-    fout.precision(prec);
+    fout << "Kruskal: ";
+    kruskal_timer.printElapsedSeconds(fout);
     //kruskal_mst.printEdges(fout);
     if(DEBUG){
       std::cerr << "Kruskal MST:" << std::endl;
@@ -93,12 +90,7 @@ int main(int argc, char **argv){
     }
 
     fout << "Prim: " << 0.0 << std::endl;
-    /*
-    prec = fout.std::ios_base::precision();
-    fout << "Prim: " << std::fixed << std::setprecision(7) << prim_timer.elapsedMicro()/1000000.0 << std::endl;
-    fout.unsetf(std::ios_base::fixed);
-    fout.precision(prec);    
-    */
+    //prim_timer.printElapsedSeconds(fout);
     //prim_mst.printEdges(fout);
     /*
     if(DEBUG){
@@ -108,12 +100,7 @@ int main(int argc, char **argv){
     */
 
     fout << "Soft Heap: " << 0.0 << std::endl;
-    /*
-    prec = fout.std::ios_base::precision();
-    fout << "Soft: " << std::fixed << std::setprecision(7) << soft_timer.elapsedMicro()/1000000.0 << std::endl;
-    fout.unsetf(std::ios_base::fixed);
-    fout.precision(prec);    
-    */
+    //soft_timer.printElapsedSeconds(fout);
     //soft_mst.printEdges(fout);
     /*
     if(DEBUG){
