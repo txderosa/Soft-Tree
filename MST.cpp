@@ -2,6 +2,7 @@
 
 #include "MST.h"
 #include "DisjointComps.h" // for Kruskal
+#include <limits> //For infinity in Prim
 
 #define DEBUG 1 // 1 to turn debug on
 
@@ -21,7 +22,7 @@ Graph Prim(Graph g, Graph &mst){
   for(int i = 1; i < g.numVertices(); i++)
   {
     //Do stuff
-    g.vertex(i).setKey(INFINITY);
+    g.vertex(i).setKey(std::numeric_limits<int>::max());
     Q.push_back(g.vertex(i));
   }
   r.setKey(0);
@@ -29,15 +30,26 @@ Graph Prim(Graph g, Graph &mst){
   std::make_heap(Q.begin(), Q.end(), keyComp);
   while(Q.size() > 0)
   {
+    std::make_heap(Q.begin(), Q.end(), keyComp);
     Vertex u = Q[0];
-
     for(int i = 0; i < g.adj(u.id()).size(); i ++)
     {
-      if(g.adj(u.id())[i] > 0 && 
-  
+      if(g.vertex(std::get<0>(g.adj(u.id())[i])).id() > 0 && std::get<1>(g.adj(u.id())[i]) < g.vertex(std::get<0>(g.adj(u.id())[i])).id())
+      {
+        g.vertex(std::get<0>(g.adj(u.id())[i])).setParent(u.id());
+	g.vertex(std::get<0>(g.adj(u.id())[i])).setKey(std::get<1>(g.adj(u.id())[i]));
+      }
+    }
+    Q.erase(Q.begin());
   }
-
-  return Graph();
+  for(int i = 0; i < g.numVertices(); i++)
+  {
+    if(g.vertex(i).parent() != -1)
+    {
+      mst.insertEdge(g.vertex(i).id(), g.vertex(i).parent(), g.vertex(i).key());
+    }
+  }
+  return mst;
 }
 
 // comp func to sort edges by weight
