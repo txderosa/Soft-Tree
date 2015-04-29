@@ -7,16 +7,16 @@
 
 bool keyComp(Vertex v1, Vertex v2)
 {
-  if(v1.key() > v2.key)
+  if(v1.key() > v2.key())
   {
     return true;
   }
   return false;
 }
 
-Graph Prim(Graph g){
+Graph Prim(Graph g, Graph &mst){
   std::cerr << "Called Prim(Graph)" << std::endl;
-  vector<Vertex> Q;
+  std::vector<Vertex> Q;
   Vertex r = g.vertex(0);
   for(int i = 1; i < g.numVertices(); i++)
   {
@@ -26,15 +26,16 @@ Graph Prim(Graph g){
   }
   r.setKey(0);
   Q.push_back(r);
-  std::make_heap(Q.begin(), Q.end(), keyCompare);
-  //while(Q.size() > 0)
+  std::make_heap(Q.begin(), Q.end(), keyComp);
+  while(Q.size() > 0)
   {
-    
+    Vertex u = Q[0];
+
+    for(int i = 0; i < g.adj(u.id()).size(); i ++)
+    {
+      if(g.adj(u.id())[i] > 0 && 
   
   }
-}
-    
-
 
   return Graph();
 }
@@ -46,7 +47,7 @@ bool sortEdgesByWeight(Edge a, Edge b){
 
 Graph Kruskal(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Kruskal(Graph)" << std::endl;
-  
+/*  
   int nVertices = g.numVertices();
   //Graph mst(nVertices);
   DisjointComps dc(nVertices);
@@ -72,12 +73,13 @@ Graph Kruskal(Graph g, Graph &mst){
       dc.unionComps(g.vertex(u_id), g.vertex(v_id), g);
     }
   }
-
+*/
   return mst;
 }
 
 Graph Soft(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Soft(Graph)" << std::endl;
+
   return Graph();
 }
 
