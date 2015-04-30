@@ -2,6 +2,7 @@
 #define _SOFTHEAP_H_
 
 #include "Vertex.cpp"
+#include <limits>
 
 typedef struct ILCELL {
 	int key; 
@@ -21,6 +22,7 @@ typedef struct HEAD {
 } head;
 
 int r;
+static int INFINITY = std::numeric_limits<int>::max();
 void setR(int value);
 
 void insert(int newKey);
