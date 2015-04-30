@@ -7,7 +7,15 @@
 
 #include "Edge.cpp"
 #include "Vertex.cpp"
-
+/*
+typedef struct vertice_struct{
+  string name;
+  std::vector<Edge> edgeList;
+  std::vector<Node> adjList;
+  int key;
+  Node parent;
+} Node;
+*/
 typedef std::pair<int,int> Neighbor;
 
 class Graph{
