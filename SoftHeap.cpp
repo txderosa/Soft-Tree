@@ -1,6 +1,9 @@
 #include "SoftHeap.h"
+#include <limits> 
 
+#define INFINITY std::numeric_limits<int>::max()
 
+void setR(int value){ r = value; }
 
 void insert(int newKey){
 	node *q;
@@ -68,4 +71,49 @@ void fixMinList(head &h){
 		h->suffixMin = temp;
 		h = h->prev;
 	}
+}
+
+node* sift(node &v){
+	node *temp;
+	v->il = NULL;
+	v->il_tail = NULL;
+	if(v->next == NULL && v->child == NULL){
+		v->ckey = INFINITY
+		return v;
+	}
+	v->next = sift(v->next);
+	if(v->next->ckey > v->child->ckey){
+		temp = v->child;
+		v->child = v->next;
+		v->next = temp;
+	}
+	v->il = v->next->il;
+	v->il_tail = v->next->il_tail;
+	v->ckey = v->next->ckey;
+	if(v->rank > r && (v->rank % 2 == 1 || v->child->rank < v->rank - 1)){
+		v->next = sift(v->next);
+		if(v->next->ckey> v->child->ckey){
+			temp = v->child;
+			v->child = v->next;
+			v->next = v->child;
+		}
+		if(v->next->ckey != INFINITY && v->next->il != NULL){
+			v->next->il_tail->next = v->il;
+			v->il = v->next->il;
+			if(v->il_tail == NULL){
+				v->il_tail = v->next->il_tail;
+			}
+			v->ckey = v->next->ckey;
+		}
+	}
+	if(v->child->ckey == INFINITY){
+		if(v->next->ckey == INFINITY){
+			v->child = NULL;
+			v->next = NULL;
+		} else {
+			v->child = v->next->child;
+			v->next = v->next->next;
+		}
+	}
+	return v;
 }

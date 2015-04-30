@@ -20,6 +20,9 @@ typedef struct HEAD {
 	int rank;
 } head;
 
+int r;
+void setR(int value);
+
 void insert(int newKey);
 void meld(node &q);
 void fixMinList(head &h);
