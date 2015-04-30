@@ -18,37 +18,46 @@ bool keyComp(Vertex v1, Vertex v2)
 Graph Prim(Graph g, Graph &mst){
   std::cerr << "Called Prim(Graph)" << std::endl;
   std::vector<Vertex> Q;
-  Vertex r = g.vertex(0);
-  for(int i = 1; i < g.numVertices(); i++)
+  //Vertex r = g.vertex(0);
+  for(int i = 0; i < g.numVertices(); i++)
   {
     //Do stuff
     g.vertex(i).setKey(std::numeric_limits<int>::max());
     Q.push_back(g.vertex(i));
   }
-  r.setKey(0);
-  Q.push_back(r);
-  std::make_heap(Q.begin(), Q.end(), keyComp);
+  //r.setKey(0);
+  //Q.push_back(r);
+  //std::make_heap(Q.begin(), Q.end(), keyComp); //not needed?
+  Q[0].setKey(0);
   while(Q.size() > 0)
   {
     std::make_heap(Q.begin(), Q.end(), keyComp);
     Vertex u = Q[0];
+    std::cout << "Vertext u = " << Q[0].id() << std::endl;
+    Q[0].setKey(-1);
+    Q.erase(Q.begin());
     for(int i = 0; i < g.adj(u.id()).size(); i ++)
     {
-      if(g.vertex(std::get<0>(g.adj(u.id())[i])).id() > 0 && std::get<1>(g.adj(u.id())[i]) < g.vertex(std::get<0>(g.adj(u.id())[i])).id())
+      if(g.vertex(std::get<0>(g.adj(u.id())[i])).key() >= 0 && std::get<1>(g.adj(u.id())[i]) < g.vertex(std::get<0>(g.adj(u.id())[i])).key())
       {
+	std::cout << " Adjacent vertex = " << std::get<0>(g.adj(u.id())[i]) << std::endl;
         g.vertex(std::get<0>(g.adj(u.id())[i])).setParent(u.id());
 	g.vertex(std::get<0>(g.adj(u.id())[i])).setKey(std::get<1>(g.adj(u.id())[i]));
       }
     }
-    Q.erase(Q.begin());
+    
   }
   for(int i = 0; i < g.numVertices(); i++)
   {
-    if(g.vertex(i).parent() != -1)
+    if(g.vertex(i).key() != -1)
     {
       mst.insertEdge(g.vertex(i).id(), g.vertex(i).parent(), g.vertex(i).key());
+      //g.vertex(g.vertex(i).parent()).setKey(-1);
+      g.vertex(g.vertex(i).parent()).setKey(-1);
+      //g.vertex(i).setParent(-1);
     }
   }
+
   return mst;
 }
 
@@ -59,7 +68,7 @@ bool sortEdgesByWeight(Edge a, Edge b){
 
 Graph Kruskal(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Kruskal(Graph)" << std::endl;
-/*  
+  
   int nVertices = g.numVertices();
   //Graph mst(nVertices);
   DisjointComps dc(nVertices);
@@ -85,7 +94,7 @@ Graph Kruskal(Graph g, Graph &mst){
       dc.unionComps(g.vertex(u_id), g.vertex(v_id), g);
     }
   }
-*/
+
   return mst;
 }
 
