@@ -1,13 +1,18 @@
 TARGET = SoftHeap
+GEN = GraphGen
 
 SRC = \
 	Driver.cpp \
 	Timer.cpp \
 	MST.cpp \
 	Graph.cpp \
-	DisjointComps.cpp \
+	DisjointComps.cpp 
+
+GEN_SRC = \
+	Generator.cpp 
 
 OBJ_FILES := $(SRC:.cpp=.o)
+GEN_OBJ_FILES := $(GEN_SRC:.cpp=.o)
 
 CPPFLAGS := -g -Wall -std=c++11
 
@@ -20,8 +25,12 @@ $(TARGET):	$(OBJ_FILES)
 %.o:	%.cpp
 	g++ $(CPPFLAGS) -c $^
 
-clean:
-	rm -f *~ *# *.o *.exe $(TARGET)
+gen:	$(GEN_OBJ_FILES)
+	g++ $(CPPFLAGS) $(GEN_OBJ_FILES) -o $(GEN)
 
+clean:
+	rm -f *~ *# *.o *.exe $(TARGET) $(GEN)
+
+# REMOVE AFTER DONE WITH TESTING TIMER
 time:	Timer.o TimerTest.o
 	g++ $(CPPFLAGS) Timer.o TimerTest.o -o test.exe
