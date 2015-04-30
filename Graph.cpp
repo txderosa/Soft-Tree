@@ -1,6 +1,6 @@
 #include "Graph.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 Graph::Graph(){
   if(DEBUG) std::cerr << "Called Graph::Graph() [default constructor]"<< std::endl;

@@ -6,7 +6,7 @@
 #include "MST.h"
 #include "Timer.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 void usage(char *progName){
   std::cerr << "usage: " << progName << " <input-file> <output-file>" << std::endl;
@@ -55,7 +55,6 @@ int main(int argc, char **argv){
       graph.showEdges();
       graph.showAdj(false);
     }
-
     
     // run algorithms and time
     Graph kruskal_mst(nVertices);
