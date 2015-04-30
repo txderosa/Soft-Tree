@@ -1,6 +1,6 @@
 #include "Graph.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 Graph::Graph(){
   if(DEBUG) std::cerr << "Called Graph::Graph() [default constructor]"<< std::endl;
@@ -146,12 +146,12 @@ void Graph::showAdj(bool verbose) const{
 }
 
 void Graph::showEdges(void) const{
-  if(DEBUG){
+  //if(DEBUG){
     std::cerr << "Called Graph::showEdges(void)" << std::endl;
     std::cerr << "Edge List:" << std::endl;
     for(std::vector<Edge>::const_iterator it = edgeList.begin(); it != edgeList.end(); it++){
       std::cerr << it->u() << " " << it->v() << " " << it->weight() << std::endl;
-    }
+    //}
   }
   
 }

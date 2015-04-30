@@ -117,3 +117,7 @@ node* sift(node &v){
 	}
 	return v;
 }
+
+void extractMin(){
+
+}

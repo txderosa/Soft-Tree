@@ -64,13 +64,13 @@ int main(int argc, char **argv){
     Kruskal(graph, kruskal_mst);
     kruskal_timer.end();
     
-    /*
+    
     Graph prim_mst(nVertices);
     Timer prim_timer;
     prim_timer.start();
     Prim(graph, prim_mst);
     prim_timer.end();
-
+	/*
     Graph soft_mst(nVertices);
     Timer soft_timer;
     soft_timer.start();
@@ -92,20 +92,20 @@ int main(int argc, char **argv){
       kruskal_mst.showEdges();
     }
 
-    fout << "Prim: " << 0.0 << std::endl;
-    /*
+   // fout << "Prim: " << 0.0 << std::endl;
+   
     prec = fout.std::ios_base::precision();
     fout << "Prim: " << std::fixed << std::setprecision(7) << prim_timer.elapsedMicro()/1000000.0 << std::endl;
     fout.unsetf(std::ios_base::fixed);
     fout.precision(prec);    
-    */
+   
     //prim_mst.printEdges(fout);
-    /*
+   
     if(DEBUG){
       std::cerr << "Prim MST:" << std::endl;
       prim_mst.showEdges();
     }
-    */
+    
 
     fout << "Soft Heap: " << 0.0 << std::endl;
     /*
