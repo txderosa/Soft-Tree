@@ -1,123 +1,74 @@
 #include "SoftHeap.h"
-#include <limits> 
-
-#define INFINITY std::numeric_limits<int>::max()
 
 void setR(int value){ r = value; }
 
-void insert(int newKey){
-	node *q;
-	ilcell *l;
-	l = (ilcell *)malloc(sizeof(ilcell));
-	l->key = newKey;
-	l->next = NULL;
-	q = newNode();	
-	q->rank = 0;	
-	q->ckey = newKey;
-	q->il = l;
-	q->il_tail = l;
-	meld(q);
+head makeHeap(Vertex &v){ 
+//very rough draft of this function
+	head p = newHead();
+	p.heap = makeTree(v);
+	p.rank = 0;
+	return p;	
 }
 
-void meld(node &q){
-	head *h, *prevHead, *toHead = header->next;
-	node *top, *bottom;	
-	while(q->rank > toHead->rank){
-		toHead = toHead->next;
-	}
-	prevHead = toHead->prev;
-	while(q->rank == toHead->rank){
-		if(toHead->heap->ckey > q->key){
-			top = q;
-			bottom = toHead->heap;
-		} else {
-			top = toHead->heap;
-			bottom = q;
-		}
-		q = newNode();
-		q->ckey = top->ckey;
-		q->rank = top->rank + 1;
-		q->child = bottom;
-		q->next = top;
-		q->il = top->il;
-		q->il_tail = top->il_tail;
-		toHead = toHead->next;
-	}
-	if(prevHead == toHead->prev){
-		h = newHead();
-	} else {
-		h = prevHead->next;
-	}
-	h->heap = q;
-	h->rank = q->rank;
-	h->prev = prevHead;
-	h->next = toHead;
-	prevHead->next = h;
-	toHead->prev = h;
-	fixMinList(h);
+head insert(head &p, Vertex &v){
+	return meld(p,makeHeap(v));
 }
 
-void fixMinList(head &h){
-	head *temp;
-	if(h->next == tail){
-		temp = h;
-	} else {
-		temp = h->next->suffixMin;
-	}
-	while(h != header){
-		if(h->heap->ckey < temp->heap->ckey){
-			temp = h;
+void sift(node &x){
+	while(x.listSize < x.size && !leaf(x)){
+		if(x.left == NULL || (x.right == NULL && x.left.ckey > c.right.ckey)){
+			node temp = x.left;
+			x.left = x.right;
+			x.right = temp;
 		}
-		h->suffixMin = temp;
-		h = h->prev;
+		concatenate(x.list, x.left.list);
+		x.ckey = x.left.ckey;
+		x.left.list = NULL;
+		if(leaf(x.left)) x.left == NULL;
+		else sift(x.left);
 	}
 }
 
-node* sift(node &v){
-	node *temp;
-	v->il = NULL;
-	v->il_tail = NULL;
-	if(v->next == NULL && v->child == NULL){
-		v->ckey = INFINITY
-		return v;
-	}
-	v->next = sift(v->next);
-	if(v->next->ckey > v->child->ckey){
-		temp = v->child;
-		v->child = v->next;
-		v->next = temp;
-	}
-	v->il = v->next->il;
-	v->il_tail = v->next->il_tail;
-	v->ckey = v->next->ckey;
-	if(v->rank > r && (v->rank % 2 == 1 || v->child->rank < v->rank - 1)){
-		v->next = sift(v->next);
-		if(v->next->ckey> v->child->ckey){
-			temp = v->child;
-			v->child = v->next;
-			v->next = v->child;
-		}
-		if(v->next->ckey != INFINITY && v->next->il != NULL){
-			v->next->il_tail->next = v->il;
-			v->il = v->next->il;
-			if(v->il_tail == NULL){
-				v->il_tail = v->next->il_tail;
-			}
-			v->ckey = v->next->ckey;
-		}
-	}
-	if(v->child->ckey == INFINITY){
-		if(v->next->ckey == INFINITY){
-			v->child = NULL;
-			v->next = NULL;
-		} else {
-			v->child = v->next->child;
-			v->next = v->next->next;
-		}
-	}
-	return v;
+node combine(node &x, node &y){
+	z = newNode();
+	z.left = x;
+	z.right = y;
+	z.rank = x.rank + 1;
+	if(z.rank <= r) z.size = 1;
+	else z.size = (3 * x.size + 1)/2;
+	sift(z);
+	return z;
+
 }
 
-void extractMin(){
+head meld(head &p, head &q){
+	if(p.rank > q.rank){
+		int temp = p.rank;
+		p.rank = q.rank;
+		q.rank = temp;
+	}
+	//merge-into(p,q)
+	//repeated-combine(q, p.rank)
+	return q;
+}
 
+Vertex extractMin(head &p){
+	if(p.heap == NULL) return NULL;
+	//T = sufmin[first[P]] = p.heap.sufmin?
+	//x = root[T] = T.root?
+	//e = pickElement(list[x]) = ??
+
+	if(x.listSize <= x.size/2){
+		if(!leaf(x)){
+			sift(x);
+			updateSuffixMin(T);
+		} else if(x.listSize != 0){
+
+		}
+	}
+}
+
+bool leaf(node &x){
+	if(x.left == NULL && x.right == NULL) return true;
+	else return false;
 }

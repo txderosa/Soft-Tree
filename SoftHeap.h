@@ -10,8 +10,8 @@ typedef struct ILCELL {
 } ilcell;
 
 typedef struct NODE {
-	int ckey, rank;
-	struct NODE *next, *child;
+	int ckey, rank, listSize, size;
+	struct NODE *left, *right;
 	struct ILCELL *il, il_tail;
 } node;
 
@@ -27,8 +27,12 @@ void setR(int value);
 
 void insert(int newKey);
 void meld(node &q);
-void fixMinList(head &h);
+void fixMinList(head &h); //upate-suffix-min
 node* sift(node &v);
+node combine(node &x, node &y);
+//make-heap();
 void extractMin(void);
+bool leaf(node &x);
+//concatenate(list, list)
 
 #endif
