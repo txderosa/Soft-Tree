@@ -1,16 +1,22 @@
 #include "SoftHeap.h"
 
-void setR(int value){ r = value; }
+/* TODO
+  * make sure node.listSize incremements correctly and node.size is set correctly
+  * check that concatenate in sift() works correctly
+  * implement pickElement() in extractMin()
+*/
+
+//void setR(int value){ r = value; }
 
 Queue makeQueue(Vertex &v){ 
-	Queue p = newQueue();
+	Queue p;// = newQueue();
 	p.first = makeTree(v);
 	p.rank = 0;
 	return p;	
 }
 
 Tree makeTree(Vertex &v){
-	head t = newTree();
+	Tree t;// = newTree();
 	t.root = makeNode(v);
 	t.next = NULL;
 	t.prev = NULL;
@@ -20,7 +26,7 @@ Tree makeTree(Vertex &v){
 }
 
 Node makeNode(Vertex &v){
-	Node x = newNode();
+	Node x;// = newNode();
 	x.list = v; //list[x] = {e}
 	x.ckey = v.key;
 	x.rank = 0;
@@ -69,8 +75,8 @@ Queue meld(Queue &p, Queue &q){
 		p.rank = q.rank;
 		q.rank = temp;
 	}
-	mergeInto(p,q)
-	repeatedCombine(q, p.rank)
+	mergeInto(p,q);
+	repeatedCombine(q, p.rank);
 	return q;
 }
 
