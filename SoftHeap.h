@@ -4,35 +4,46 @@
 #include "Vertex.cpp"
 #include <limits>
 
-typedef struct ILCELL {
-	int key; 
-	struct ILCELL *next;
-} ilcell;
+class Queue{
+	public:
+	typedef struct ILCELL { 
+		int key; // Vertex v? 
+		struct ILCELL *next;
+	} ilcell;
 
-typedef struct NODE {
-	int ckey, rank, listSize, size;
-	struct NODE *left, *right;
-	struct ILCELL *il, il_tail;
-} node;
+	typedef struct NODE {
+		int ckey, rank, listSize, size;
+		struct NODE *left, *right;
+		struct ILCELL *il, il_tail; //il = list?
+	} Node;
 
-typedef struct HEAD {
-	struct NODE *heap;
-	struct HEAD *next, *prev, *suffixMin;
+	typedef struct TREE {
+		struct NODE *heap;
+		struct HEAD *next, *prev, *sufmin;
+		int rank;
+	} Tree;
+
+	//int r;
+	//void setR(int value);
+	static int INFINITY = std::numeric_limits<int>::max();
+
+	//Data members of Queue
+	Tree first;
 	int rank;
-} head;
 
-int r;
-static int INFINITY = std::numeric_limits<int>::max();
-void setR(int value);
-
-void insert(int newKey);
-void meld(node &q);
-void fixMinList(head &h); //upate-suffix-min
-node* sift(node &v);
-node combine(node &x, node &y);
-//make-heap();
-void extractMin(void);
-bool leaf(node &x);
-//concatenate(list, list)
+	Queue makeQueue(Vertex &v);
+	Tree makeTree(Vertex &v);
+	Node makeNode(Vertex &);
+	Queue insert(Queue &p, Vertex &v);
+	Node combine(Node &x, Node &y);
+	Queue meld(Queue &p, Queue &q);
+	Vertex extractMin(Tree &p);
+	void mergeInto(Queue &p, Queue &q);
+	void repeatedCombine(Queue &q, int k);
+	void updateSuffixMin(head &t);
+	void insertTree(Queue &p, Tree &t1, Tree &t2);
+	void removeTree(Queue &p, Tree &t);
+	bool leaf(node &x);
+};
 
 #endif

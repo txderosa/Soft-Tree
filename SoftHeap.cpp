@@ -2,14 +2,14 @@
 
 void setR(int value){ r = value; }
 
-head makeHeap(Vertex &v){ 
-	Queue p = newHeap();
+Queue makeQueue(Vertex &v){ 
+	Queue p = newQueue();
 	p.first = makeTree(v);
 	p.rank = 0;
 	return p;	
 }
 
-head makeTree(Vertex &v){
+Tree makeTree(Vertex &v){
 	head t = newTree();
 	t.root = makeNode(v);
 	t.next = NULL;
@@ -19,8 +19,8 @@ head makeTree(Vertex &v){
 	return t;
 }
 
-node makeNode(Vertex &v){
-	node x = newNode();
+Node makeNode(Vertex &v){
+	Node x = newNode();
 	x.list = v; //list[x] = {e}
 	x.ckey = v.key;
 	x.rank = 0;
@@ -34,14 +34,16 @@ Queue insert(Queue &p, Vertex &v){
 	return meld(p,makeHeap(v));
 }
 
-void sift(node &x){
+void sift(Node &x){
 	while(x.listSize < x.size && !leaf(x)){
 		if(x.left == NULL || (x.right == NULL && x.left.ckey > c.right.ckey)){
-			node temp = x.left;
+			Node temp = x.left;
 			x.left = x.right;
 			x.right = temp;
 		}
-		concatenate(x.list, x.left.list);
+		//concatenate(x.list, x.left.list);
+		x.list.next = x.left.list;
+		x.left.list = NULL;
 		x.ckey = x.left.ckey;
 		x.left.list = NULL;
 		if(leaf(x.left)) x.left == NULL;
@@ -49,7 +51,7 @@ void sift(node &x){
 	}
 }
 
-node combine(node &x, node &y){
+Node combine(Node &x, Node &y){
 	z = newNode();
 	z.left = x;
 	z.right = y;
@@ -72,18 +74,18 @@ Queue meld(Queue &p, Queue &q){
 	return q;
 }
 
-Vertex extractMin(head &p){
+Vertex extractMin(Tree &p){
 	if(p.heap == NULL) return NULL;
-	head T = p.first.sufmin; // sufmin[first[P]]
-	node x = T.root
+	Tree t = p.first.sufmin; // sufmin[first[P]]
+	Node x = T.root;
 	//Vertex e = pickElement(list[x]) = ??
 
 	if(x.listSize <= x.size/2){
 		if(!leaf(x)){
 			sift(x);
-			updateSuffixMin(T);
+			updateSuffixMin(t);
 		} else if(x.listSize != 0){
-			removeTree(p,T);
+			removeTree(p,t);
 		}
 	}
 	return e;
@@ -91,22 +93,23 @@ Vertex extractMin(head &p){
 
 void mergeInto(Queue &p, Queue &q){
 	if(p.rank > q.rank){
-		//abort
+		std::cerr << "mergeInto abort: p.rank > q.rank" << std::endl;
+		exit(EXIT_FAILURE);
 	}
-	head T1 = p.first;
-	head T2 = q.first;
+	Tree t1 = p.first;
+	Tree t2 = q.first;
 	while(T1 != NULL){
-		while(T1.rank > T2.rank){
-			T2 = T2.next;
+		while(t1.rank > t2.rank){
+			t2 = t2.next;
 		}
-		head temp = T1;
-		insertTree(q, T1, T2);
-		T1 = temp;
+		Tree temp = t1;
+		insertTree(q, t1, t2);
+		t1 = temp;
 	}
 }
 
 void repeatedCombine(Queue &q, int k){
-	head t = q.first;
+	Tree t = q.first;
 	while(t.next != NULL){
 		if(t.rank = t.next.rank){
 			if(t.next.next == NULL || t.rank != t.next.next.rank){
@@ -126,7 +129,7 @@ void repeatedCombine(Queue &q, int k){
 	updateSuffixMin(t); //pass in q?
 }
 
-void updateSuffixMin(head t){
+void updateSuffixMin(Tree &t){
 	while(t != NULL){
 		if(t.root.ckey <= t.next.sufmin.root.ckey){
 			t.sufmin = t; 
@@ -137,7 +140,7 @@ void updateSuffixMin(head t){
 	}
 }
 
-void insertTree(Queue p, head t1, head t2){
+void insertTree(Queue &p, Tree &t1, Tree &t2){
 	t1.next = t2;
 	if(t2.prev = NULL){
 		p.first = t1;
@@ -146,7 +149,7 @@ void insertTree(Queue p, head t1, head t2){
 	}
 }
 
-void removeTree(Queue p, head t){
+void removeTree(Queue &p, Tree &t){
 	if(t.prev == NULL){
 		p.first = t.next;
 	} else {
@@ -157,7 +160,7 @@ void removeTree(Queue p, head t){
 	}
 }
 
-bool leaf(node &x){
+bool leaf(Node &x){
 	if(x.left == NULL && x.right == NULL) return true;
 	else return false;
 }
