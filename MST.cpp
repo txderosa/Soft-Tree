@@ -47,6 +47,7 @@ Graph Prim(Graph g, Graph &mst){
     }
     
   }
+  /*
   for(int i = 0; i < g.numVertices(); i++)
   {
     if(g.vertex(i).key() != -1)
@@ -57,7 +58,7 @@ Graph Prim(Graph g, Graph &mst){
       //g.vertex(i).setParent(-1);
     }
   }
-
+  */
   return mst;
 }
 

@@ -6,7 +6,7 @@ SRC = \
 	MST.cpp \
 	Graph.cpp \
 	DisjointComps.cpp \
-	SoftHeap.cpp
+#	SoftHeap.cpp
 
 OBJ_FILES := $(SRC:.cpp=.o)
 
