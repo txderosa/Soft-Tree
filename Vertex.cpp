@@ -10,6 +10,7 @@ private:
   int v_id;
   int v_parent;
   int v_key;
+  int v_ckey;
   int v_comp_id;
 
 public:
@@ -18,6 +19,7 @@ public:
     v_id = 0;
     v_parent = -1;
     v_key = -1;
+    v_ckey = -1;
     v_comp_id = -1;
   }
 
@@ -25,6 +27,7 @@ public:
     v_id = id;
     v_parent = -1;
     v_key = -1;
+    v_ckey = -1;
     v_comp_id = -1;
   }
 
@@ -36,6 +39,9 @@ public:
 
   int key(void) const{ return v_key; }
   void setKey(int newKey){ v_key = newKey; }
+  
+  int ckey(void) const{ return v_ckey; }
+  void setCKey(int newCKey){ v_ckey = newCKey; }
 
   int compID(void) const{ return v_comp_id; }
   void setCompID(int newCompID){ v_comp_id = newCompID; }

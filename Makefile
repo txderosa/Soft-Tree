@@ -2,9 +2,11 @@ TARGET = SoftHeap
 
 SRC = \
 	Driver.cpp \
+	Timer.cpp \
 	MST.cpp \
 	Graph.cpp \
 	DisjointComps.cpp \
+	SoftHeap.cpp
 
 OBJ_FILES := $(SRC:.cpp=.o)
 
@@ -21,3 +23,6 @@ $(TARGET):	$(OBJ_FILES)
 
 clean:
 	rm -f *~ *# *.o *.exe $(TARGET)
+
+time:	Timer.o TimerTest.o
+	g++ $(CPPFLAGS) Timer.o TimerTest.o -o test.exe
