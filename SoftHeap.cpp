@@ -4,72 +4,87 @@
   * make sure node.listSize incremements correctly and node.size is set correctly
   * check that concatenate in sift() works correctly
   * implement pickElement() in extractMin()
+  * = operator for Tree
 */
 
-//void setR(int value){ r = value; }
 
-Queue makeQueue(Vertex &v){ 
-	Queue p;// = newQueue();
-	p.first = makeTree(v);
-	p.rank = 0;
-	return p;	
+Queue::Queue(){
+
 }
 
-Tree makeTree(Vertex &v){
+Queue::Queue(v){ 
+	first = makeTree(v);
+	rank = 0;	
+}
+
+Queue::~Queue(){
+
+}
+
+Tree Queue::makeTree(Vertex v){
 	Tree t;// = newTree();
 	t.root = makeNode(v);
 	t.next = NULL;
 	t.prev = NULL;
 	t.rank = 0;
-	t.sufmin = t;
+	t.sufmin = &t;
 	return t;
 }
 
-Node makeNode(Vertex &v){
+Node Queue::makeNode(Vertex v){
 	Node x;// = newNode();
-	x.list = v; //list[x] = {e}
+	x.list = makeILCell(v); //list[x] = {e}
+	x.list_tail = x.list;
 	x.ckey = v.key;
 	x.rank = 0;
-	x.size = 1;
+	x.listSize = 1;
 	x.left = NULL;
 	x.right = NULL;
 	return x;
 }
 
-Queue insert(Queue &p, Vertex &v){
-	return meld(p,makeHeap(v));
+ilcell Queue::makeILCell(Vertex v){
+	ilcell c;
+	c.vertex = v;
+	c.next = NULL;
+	return c;
 }
 
-void sift(Node &x){
-	while(x.listSize < x.size && !leaf(x)){
-		if(x.left == NULL || (x.right == NULL && x.left.ckey > c.right.ckey)){
+Queue Queue::insert(Queue &p, Vertex &v){
+	return meld(p,makeQueue(v));
+}
+
+void Queue::sift(Node &x){
+	while(x.listSize < x.targetSize && !leaf(x)){
+		if(x.left == NULL || (x.right == NULL && x.left.ckey > x.right.ckey)){
 			Node temp = x.left;
 			x.left = x.right;
 			x.right = temp;
 		}
 		//concatenate(x.list, x.left.list);
-		x.list.next = x.left.list;
-		x.left.list = NULL;
+		x.list_tail.next = x.left.list;
 		x.ckey = x.left.ckey;
+		x.listSize += x.left.listSize;
 		x.left.list = NULL;
-		if(leaf(x.left)) x.left == NULL;
+		x.left.list_tail = NULL;
+		if(leaf(x.left)) x.left = NULL;
 		else sift(x.left);
 	}
 }
 
-Node combine(Node &x, Node &y){
-	z = newNode();
+Node Queue::combine(Node &x, Node &y){
+	Node z;// = newNode();
 	z.left = x;
 	z.right = y;
 	z.rank = x.rank + 1;
-	if(z.rank <= r) z.size = 1;
-	else z.size = (3 * x.size + 1)/2;
+	if(z.rank <= r) z.targetSize = 1;
+	else z.targetSize = (3 * x.targetSize + 1)/2;
 	sift(z);
 	return z;
 
 }
 
-Queue meld(Queue &p, Queue &q){
+Queue Queue::meld(Queue &p, Queue &q){
 	if(p.rank > q.rank){
 		int temp = p.rank;
 		p.rank = q.rank;
@@ -80,13 +95,13 @@ Queue meld(Queue &p, Queue &q){
 	return q;
 }
 
-Vertex extractMin(Tree &p){
-	if(p.heap == NULL) return NULL;
+Vertex Queue::extractMin(Queue &p){
+	if(p.first == NULL) return NULL;
 	Tree t = p.first.sufmin; // sufmin[first[P]]
-	Node x = T.root;
-	//Vertex e = pickElement(list[x]) = ??
+	Node x = t.root;
+	Vertex e;//= pickElement(list[x]) = ??
 
-	if(x.listSize <= x.size/2){
+	if(x.listSize <= x.targetSize/2){
 		if(!leaf(x)){
 			sift(x);
 			updateSuffixMin(t);
@@ -97,14 +112,14 @@ Vertex extractMin(Tree &p){
 	return e;
 }
 
-void mergeInto(Queue &p, Queue &q){
+void Queue::mergeInto(Queue &p, Queue &q){
 	if(p.rank > q.rank){
 		std::cerr << "mergeInto abort: p.rank > q.rank" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	Tree t1 = p.first;
 	Tree t2 = q.first;
-	while(T1 != NULL){
+	while(t1 != NULL){
 		while(t1.rank > t2.rank){
 			t2 = t2.next;
 		}
@@ -114,10 +129,10 @@ void mergeInto(Queue &p, Queue &q){
 	}
 }
 
-void repeatedCombine(Queue &q, int k){
+void Queue::repeatedCombine(Queue &q, int k){
 	Tree t = q.first;
 	while(t.next != NULL){
-		if(t.rank = t.next.rank){
+		if(t.rank == t.next.rank){
 			if(t.next.next == NULL || t.rank != t.next.next.rank){
 				t.root = combine(t.root, t.next.root);
 				t.rank = t.root.rank;
@@ -135,7 +150,7 @@ void repeatedCombine(Queue &q, int k){
 	updateSuffixMin(t); //pass in q?
 }
 
-void updateSuffixMin(Tree &t){
+void Queue::updateSuffixMin(Tree &t){
 	while(t != NULL){
 		if(t.root.ckey <= t.next.sufmin.root.ckey){
 			t.sufmin = t; 
@@ -146,16 +161,16 @@ void updateSuffixMin(Tree &t){
 	}
 }
 
-void insertTree(Queue &p, Tree &t1, Tree &t2){
+void Queue::insertTree(Queue &p, Tree &t1, Tree &t2){
 	t1.next = t2;
-	if(t2.prev = NULL){
+	if(t2.prev == NULL){
 		p.first = t1;
 	} else {
 		t2.prev.next = t1;
 	}
 }
 
-void removeTree(Queue &p, Tree &t){
+void Queue::removeTree(Queue &p, Tree &t){
 	if(t.prev == NULL){
 		p.first = t.next;
 	} else {
@@ -166,7 +181,7 @@ void removeTree(Queue &p, Tree &t){
 	}
 }
 
-bool leaf(Node &x){
+bool Queue::leaf(Node &x){
 	if(x.left == NULL && x.right == NULL) return true;
 	else return false;
 }
