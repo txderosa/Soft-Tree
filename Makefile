@@ -6,7 +6,8 @@ SRC = \
 	Timer.cpp \
 	MST.cpp \
 	Graph.cpp \
-	DisjointComps.cpp 
+	DisjointComps.cpp \
+	FHeap.cpp
 #	SoftHeap.cpp
 
 GEN_SRC = \
