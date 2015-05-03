@@ -103,12 +103,12 @@ Graph Kruskal(Graph g, Graph &mst){
   return mst;
 }
 
-int Soft(Graph g, Graph &mst){
-  if(DEBUG) std::cerr << "Called Soft(Graph, Graph&)" << std::endl;
+int Fib(Graph g, Graph &mst){
+  if(DEBUG) std::cerr << "Called Fib(Graph, Graph&)" << std::endl;
   // copy g into mst, and work build the MST inside of mst
   mst = g;
 
-  Sheap Q; // Q = emptyset
+  FHeap Q; // Q = emptyset
 
   // fixed initial starting vertex: first vertex in G.V
   Vertex r = mst.vertex(0);
