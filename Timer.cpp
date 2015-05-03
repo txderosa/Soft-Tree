@@ -1,6 +1,6 @@
 #include "Timer.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 Timer::Timer(){
   if(DEBUG) std::cerr << "Called Timer::Timer() [default constructor]" << std::endl;
@@ -57,6 +57,13 @@ double Timer::elapsedMicro(void){
   std::chrono::microseconds dur = std::chrono::duration_cast<std::chrono::microseconds> (end_time - start_time);
 
   return dur.count();
+}
+
+void Timer::printElapsedSeconds(std::ostream &out){
+  std::streamsize prec = out.std::ios_base::precision();
+  out << std::fixed << std::setprecision(7) << elapsedMicro()/1000000.0 << std::endl;
+  out.unsetf(std::ios_base::fixed);
+  out.precision(prec);
 }
 
 Timer::~Timer(){

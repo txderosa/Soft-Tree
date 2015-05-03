@@ -1,34 +1,46 @@
 #ifndef _SOFTHEAP_H_
 #define _SOFTHEAP_H_
 
-#include "Vertex.cpp"
 #include <limits>
 
-typedef struct ILCELL {
-	int key; 
-	struct ILCELL *next;
-} ilcell;
+#include "SoftHeapUtil.cpp"
 
-typedef struct NODE {
-	int ckey, rank;
-	struct NODE *next, *child;
-	struct ILCELL *il, il_tail;
-} node;
+class Sheap{
+ private:
+  static const int INFINITY;
 
-typedef struct HEAD {
-	struct NODE *heap;
-	struct HEAD *next, *prev, *suffixMin;
-	int rank;
-} head;
+  //Data members of Sheap
+  Tree *first; // points to the tree with smallest rank
+  int rank; // = the largest rank of a tree in the list
 
-int r;
-static int INFINITY = std::numeric_limits<int>::max();
-void setR(int value);
+  //Tree makeTree(Vertex v);  Tree(v)
+  //Node makeNode(Vertex v);  Node(v)
+  //ilcell makeILCell(Vertex v);  ilcell(v)
+  void sift(Node &x);
+  Node combine(Node &x, Node &y);
+  void meld(Sheap &q);
+  void mergeInto(Sheap &q);
+  void repeatedCombine(int k);
+  void updateSuffixMin(Tree &t);
+  void insertTree(Tree &t1, Tree &t2);
+  void removeTree(Tree &t);
+  bool leaf(Node &x);
+  
+ public:
+  Sheap();
+  Sheap(Vertex v);
+  ~Sheap();
+  
+  void insert(Vertex &v);
+  Vertex extractMin(void);
 
-void insert(int newKey);
-void meld(node &q);
-void fixMinList(head &h);
-node* sift(node &v);
-void extractMin(void);
+  /*
+  // needed for MST
+  empty();
+  contains();
+  decreaseKey();
+  */
+  
+};
 
 #endif
