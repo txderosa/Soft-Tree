@@ -59,6 +59,13 @@ double Timer::elapsedMicro(void){
   return dur.count();
 }
 
+void Timer::printElapsedSeconds(std::ostream &out){
+  std::streamsize prec = out.std::ios_base::precision();
+  out << std::fixed << std::setprecision(7) << elapsedMicro()/1000000.0 << std::endl;
+  out.unsetf(std::ios_base::fixed);
+  out.precision(prec);
+}
+
 Timer::~Timer(){
   if(DEBUG) std::cerr << "Called Timer::Timer() [destructor]" << std::endl;
 
