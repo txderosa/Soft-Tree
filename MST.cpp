@@ -4,7 +4,7 @@
 #include "DisjointComps.h" // for Kruskal
 #include <limits> //For infinity in Prim
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 bool keyComp(Vertex v1, Vertex v2)
 {
@@ -16,7 +16,7 @@ bool keyComp(Vertex v1, Vertex v2)
 }
 
 Graph Prim(Graph g, Graph &mst){
-  std::cerr << "Called Prim(Graph)" << std::endl;
+  if(DEBUG) std::cerr << "Called Prim(Graph, Graph&)" << std::endl;
   std::vector<Vertex> Q;
   //Vertex r = g.vertex(0);
   for(int i = 0; i < g.numVertices(); i++)
@@ -33,20 +33,24 @@ Graph Prim(Graph g, Graph &mst){
   {
     std::make_heap(Q.begin(), Q.end(), keyComp);
     Vertex u = Q[0];
-    std::cout << "Vertext u = " << Q[0].id() << std::endl;
+    if(DEBUG) std::cout << "Vertext u = " << Q[0].id() << std::endl;
     Q[0].setKey(-1);
     Q.erase(Q.begin());
-    for(int i = 0; i < g.adj(u.id()).size(); i ++)
+    //std::swap_ranges(Q.begin(), Q.begin()+1, Q.end()-1);
+    //Q.pop_back();
+    std::vector<Neighbor> adj_u = g.adj(u.id());
+    for(unsigned int i = 0; i < adj_u.size(); i ++)
     {
-      if(g.vertex(std::get<0>(g.adj(u.id())[i])).key() >= 0 && std::get<1>(g.adj(u.id())[i]) < g.vertex(std::get<0>(g.adj(u.id())[i])).key())
+      if(g.vertex(std::get<0>(adj_u[i])).key() >= 0 && std::get<1>(adj_u[i]) < g.vertex(std::get<0>(adj_u[i])).key())
       {
-	std::cout << " Adjacent vertex = " << std::get<0>(g.adj(u.id())[i]) << std::endl;
-        g.vertex(std::get<0>(g.adj(u.id())[i])).setParent(u.id());
-	g.vertex(std::get<0>(g.adj(u.id())[i])).setKey(std::get<1>(g.adj(u.id())[i]));
+	if(DEBUG) std::cout << " Adjacent vertex = " << std::get<0>(adj_u[i]) << std::endl;
+        g.vertex(std::get<0>(adj_u[i])).setParent(u.id());
+	g.vertex(std::get<0>(adj_u[i])).setKey(std::get<1>(adj_u[i]));
       }
     }
     
   }
+  
   for(int i = 0; i < g.numVertices(); i++)
   {
     if(g.vertex(i).key() != -1)
@@ -57,7 +61,7 @@ Graph Prim(Graph g, Graph &mst){
       //g.vertex(i).setParent(-1);
     }
   }
-
+  
   return mst;
 }
 
@@ -67,7 +71,7 @@ bool sortEdgesByWeight(Edge a, Edge b){
 }
 
 Graph Kruskal(Graph g, Graph &mst){
-  if(DEBUG) std::cerr << "Called Kruskal(Graph)" << std::endl;
+  if(DEBUG) std::cerr << "Called Kruskal(Graph, Graph&)" << std::endl;
   
   int nVertices = g.numVertices();
   //Graph mst(nVertices);
@@ -98,9 +102,66 @@ Graph Kruskal(Graph g, Graph &mst){
   return mst;
 }
 
-Graph Soft(Graph g, Graph &mst){
-  if(DEBUG) std::cerr << "Called Soft(Graph)" << std::endl;
+int Soft(Graph g, Graph &mst){
+  if(DEBUG) std::cerr << "Called Soft(Graph, Graph&)" << std::endl;
+  // copy g into mst, and work build the MST inside of mst
+  mst = g;
 
-  return Graph();
+  Queue Q; // Q = emptyset
+
+  // fixed initial starting vertex: first vertex in G.V
+  Vertex r = mst.vertex(0);
+  r.setKey(0);
+  Q.insert(r);
+
+  // insert vertices into Q
+  for(int i = 1; i < mst.numVertices(); i++){
+    mst.vertex(i).setKey(std::numeric_limits<int>::max());
+    Q.insert(mst.vertex(i));
+  }
+  
+  Vertex u;
+  int u_id;
+  while(!Q.empty()){ // !!! Q.empty() needs to be implemented
+    u = Q.extractMin();
+    u_id = u.id();
+    if(DEBUG) std::cout << "Vertex u = " << u.id() << std::endl;
+    //Q[0].setKey(-1); !!! what is this for???
+    //Q.erase(Q.begin()); !!! this should be done in extractMin
+
+    std::vector<Neighbor> adj_u = mst.adj(u_id);
+    for(std::vector<Neighbor>::iterator it = adj_u.begin(); it != adj_u.end(); it++){
+      int neighborID = it->first;
+      int neighborKey = mst.vertex(neighborID).key();
+      int weight = it->second;
+      if(DEBUG) std::cout << " Adjacent vertex = " << neighborID << std::endl;      
+      if( Q.contains(neighborID) && (weight < neighborKey) ){ //!!! Q.contains() needs to be implemented; could use g to track inside by using g.vertex().setKey(-1) trick?
+	mst.vertex(neighborID).setParent(u_id);
+	Q.decreaseKey(neighborID, weight); //!!! Q.decreaseKey needs to be implemented
+      }
+    }
+    
+  } // end of algorithm
+
+  // return id of last vertex for tracing out the MST in mst
+  return u_id;
 }
 
+void extractMST(Graph &mst, int lastID){
+  if(DEBUG) std::cerr << "Called extractMST(Graph, int)" << std::endl;
+  int nVertices = mst.numVertices();
+  Graph tmp(nVertices);
+  int v_id = lastID;
+  int u_id, weight;
+  // build MST from parent info in mst
+  for(int i = 0; i < nVertices-1; i++){
+    u_id = mst.vertex(v_id).parent();
+    weight = mst.vertex(v_id).key();
+    Edge e(u_id, v_id, weight);
+    tmp.insertEdge(e);
+    v_id = u_id;
+  }
+  // replace the graph with the MST
+  mst = tmp;
+  
+}

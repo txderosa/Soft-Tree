@@ -73,7 +73,7 @@ int main(int argc, char **argv){
     Graph soft_mst(nVertices);
     Timer soft_timer;
     soft_timer.start();
-    Soft(graph, soft_mst);
+    int soft_last_id = Soft(graph, soft_mst);
     soft_timer.end();
     */
 
@@ -88,7 +88,7 @@ int main(int argc, char **argv){
       kruskal_mst.showEdges();
     }
 
-    fout << "Prim: " << 0.0 << std::endl;
+    fout << "Prim: ";
     prim_timer.printElapsedSeconds(fout);
     //prim_mst.printEdges(fout);  
     if(DEBUG){
@@ -102,8 +102,9 @@ int main(int argc, char **argv){
     /*
     if(DEBUG){
       std::cerr << "Soft MST:" << std::endl;
+      extractMST(soft_mst, soft_last_id);
       soft_mst.showEdges();
-    }
+      }
     */
 
   }
