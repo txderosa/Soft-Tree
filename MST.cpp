@@ -1,8 +1,9 @@
 #include <algorithm> // for Kruskal: sort()
+#include <limits> //For infinity in Prim
 
 #include "MST.h"
 #include "DisjointComps.h" // for Kruskal
-#include <limits> //For infinity in Prim
+#include "SoftHeap.h" // for Soft
 
 #define DEBUG 0 // 1 to turn debug on
 
@@ -107,7 +108,7 @@ int Soft(Graph g, Graph &mst){
   // copy g into mst, and work build the MST inside of mst
   mst = g;
 
-  Queue Q; // Q = emptyset
+  Sheap Q; // Q = emptyset
 
   // fixed initial starting vertex: first vertex in G.V
   Vertex r = mst.vertex(0);

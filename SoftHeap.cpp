@@ -1,5 +1,7 @@
 #include "SoftHeap.h"
 
+Sheap::INFINITY = std::numeric_limits<int>::max();
+
 /* TODO
   * make sure node.listSize incremements correctly and node.size is set correctly
   * check that concatenate in sift() works correctly
@@ -8,20 +10,20 @@
 */
 
 
-Queue::Queue(){
+Sheap::Sheap(){
 
 }
 
-Queue::Queue(v){ 
+Sheap::Sheap(v){ 
 	first = makeTree(v);
 	rank = 0;	
 }
 
-Queue::~Queue(){
+Sheap::~Sheap(){
 
 }
 
-Tree Queue::makeTree(Vertex v){
+Tree Sheap::makeTree(Vertex v){
 	Tree t;// = newTree();
 	t.root = makeNode(v);
 	t.next = NULL;
@@ -31,7 +33,7 @@ Tree Queue::makeTree(Vertex v){
 	return t;
 }
 
-Node Queue::makeNode(Vertex v){
+Node Sheap::makeNode(Vertex v){
 	Node x;// = newNode();
 	x.list = makeILCell(v); //list[x] = {e}
 	x.list_tail = x.list;
@@ -43,18 +45,18 @@ Node Queue::makeNode(Vertex v){
 	return x;
 }
 
-ilcell Queue::makeILCell(Vertex v){
+ilcell Sheap::makeILCell(Vertex v){
 	ilcell c;
 	c.vertex = v;
 	c.next = NULL;
 	return c;
 }
 
-Queue Queue::insert(Queue &p, Vertex &v){
-	return meld(p,makeQueue(v));
+Sheap Sheap::insert(Sheap &p, Vertex &v){
+	return meld(p,makeSheap(v));
 }
 
-void Queue::sift(Node &x){
+void Sheap::sift(Node &x){
 	while(x.listSize < x.targetSize && !leaf(x)){
 		if(x.left == NULL || (x.right == NULL && x.left.ckey > x.right.ckey)){
 			Node temp = x.left;
@@ -72,7 +74,7 @@ void Queue::sift(Node &x){
 	}
 }
 
-Node Queue::combine(Node &x, Node &y){
+Node Sheap::combine(Node &x, Node &y){
 	Node z;// = newNode();
 	z.left = x;
 	z.right = y;
@@ -84,7 +86,7 @@ Node Queue::combine(Node &x, Node &y){
 
 }
 
-Queue Queue::meld(Queue &p, Queue &q){
+Sheap Sheap::meld(Sheap &p, Sheap &q){
 	if(p.rank > q.rank){
 		int temp = p.rank;
 		p.rank = q.rank;
@@ -95,7 +97,7 @@ Queue Queue::meld(Queue &p, Queue &q){
 	return q;
 }
 
-Vertex Queue::extractMin(Queue &p){
+Vertex Sheap::extractMin(Sheap &p){
 	if(p.first == NULL) return NULL;
 	Tree t = p.first.sufmin; // sufmin[first[P]]
 	Node x = t.root;
@@ -112,7 +114,7 @@ Vertex Queue::extractMin(Queue &p){
 	return e;
 }
 
-void Queue::mergeInto(Queue &p, Queue &q){
+void Sheap::mergeInto(Sheap &p, Sheap &q){
 	if(p.rank > q.rank){
 		std::cerr << "mergeInto abort: p.rank > q.rank" << std::endl;
 		exit(EXIT_FAILURE);
@@ -129,7 +131,7 @@ void Queue::mergeInto(Queue &p, Queue &q){
 	}
 }
 
-void Queue::repeatedCombine(Queue &q, int k){
+void Sheap::repeatedCombine(Sheap &q, int k){
 	Tree t = q.first;
 	while(t.next != NULL){
 		if(t.rank == t.next.rank){
@@ -150,7 +152,7 @@ void Queue::repeatedCombine(Queue &q, int k){
 	updateSuffixMin(t); //pass in q?
 }
 
-void Queue::updateSuffixMin(Tree &t){
+void Sheap::updateSuffixMin(Tree &t){
 	while(t != NULL){
 		if(t.root.ckey <= t.next.sufmin.root.ckey){
 			t.sufmin = t; 
@@ -161,7 +163,7 @@ void Queue::updateSuffixMin(Tree &t){
 	}
 }
 
-void Queue::insertTree(Queue &p, Tree &t1, Tree &t2){
+void Sheap::insertTree(Sheap &p, Tree &t1, Tree &t2){
 	t1.next = t2;
 	if(t2.prev == NULL){
 		p.first = t1;
@@ -170,7 +172,7 @@ void Queue::insertTree(Queue &p, Tree &t1, Tree &t2){
 	}
 }
 
-void Queue::removeTree(Queue &p, Tree &t){
+void Sheap::removeTree(Sheap &p, Tree &t){
 	if(t.prev == NULL){
 		p.first = t.next;
 	} else {
@@ -181,7 +183,7 @@ void Queue::removeTree(Queue &p, Tree &t){
 	}
 }
 
-bool Queue::leaf(Node &x){
+bool Sheap::leaf(Node &x){
 	if(x.left == NULL && x.right == NULL) return true;
 	else return false;
 }
