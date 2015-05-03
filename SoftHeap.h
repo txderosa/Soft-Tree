@@ -4,33 +4,42 @@
 #include <limits>
 #include "SoftHeapUtil.cpp"
 
-class Queue{
-    private:
-	const static int INFINITY = std::numeric_limits<int>::max();
-	int r = 7; //=ceiling[log2(1/epsilon)] + 5, for epsilon = .25
-	int rank;
-	Tree *first;
+class Sheap{
+ private:
+  static const int INFINITY;
 
-	Tree makeTree(Vertex v);
-	Node makeNode(Vertex v);
-	ilcell makeILCell(Vertex v);
-	void sift(Node x);
-	Node combine(Node x, Node y);
-	Queue meld(Queue p, Queue q); //first Queue p change into this, changing to OO
-	void mergeInto(Queue p, Queue q);
-	void repeatedCombine(Queue q, int k);
-	void updateSuffixMin(Tree t);
-	void insertTree(Queue p, Tree t1, Tree t2);
-	void removeTree(Queue p, Tree t);
-	bool leaf(Node x);
+  //Data members of Sheap
+  Tree *first; // points to the tree with smallest rank
+  int rank; // = the largest rank of a tree in the list
 
-    public:
-	Queue(void);
-	Queue(Vertex v);
-	~Queue(void);
-	
-	Queue insert(Queue p, Vertex v);
-	Vertex extractMin(Queue p);
+  //Tree makeTree(Vertex v);  Tree(v)
+  //Node makeNode(Vertex v);  Node(v)
+  //ilcell makeILCell(Vertex v);  ilcell(v)
+  void sift(Node &x);
+  Node combine(Node &x, Node &y);
+  void meld(Sheap &q);
+  void mergeInto(Sheap &q);
+  void repeatedCombine(int k);
+  void updateSuffixMin(Tree &t);
+  void insertTree(Tree &t1, Tree &t2);
+  void removeTree(Tree &t);
+  bool leaf(Node &x);
+  
+ public:
+  Sheap();
+  Sheap(Vertex v);
+  ~Sheap();
+  
+  void insert(Vertex &v);
+  Vertex extractMin(void);
+
+  /*
+  // needed for MST
+  empty();
+  contains();
+  decreaseKey();
+  */
+  
 };
 
 #endif

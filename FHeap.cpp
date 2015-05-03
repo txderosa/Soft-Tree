@@ -1,117 +1,50 @@
-#ifndef _SOFTHEAPUTIL_CPP_
-#define _SOFTHEAPUTIL_CPP_
+#include "FHeap.h"
+#include "Vertex.cpp"
 
-#include <cmath> // for ceil()
-
-#define ILC_DEBUG 1 // 1 to turn debug on for ilcell
+#define DEBUG 1 // 1 to turn debug on for FHeap
 #define N_DEBUG 1 // 1 to turn debug on for Node
 #define T_DEBUG 1 // 1 to turn debug on for Tree
 
-class ilcell {
-private:
-  Vertex ic_vertex;
-  ilcell *ic_next;
-  
-public:		
-  ilcell(){
-    if(ILC_DEBUG) std::cerr << "Called ilcell::ilcell() [default constructor]" << std::endl;
-    ic_next = NULL;
-  }
-
-  ilcell(Vertex v){
-    if(ILC_DEBUG) std::cerr << "Called ilcell::ilcell(Vertex) [value constructor]" << std::endl;
-    ic_vertex = v;
-    ic_next = NULL;
-  }
-
-  ilcell& operator=(const ilcell &ic){
-    if(ILC_DEBUG) std::cerr << "Called ilcell::operator=(const ilcell&) [assignment operator]" << std::endl;
-    // check for self-assignment, only copy if different objects
-    if(this != &ic){
-      ic_vertex = ic.ic_vertex;
-      setNext(ic.ic_next);
-    }
-    return *this;
-  }
-
-  Vertex& data(void){ return ic_vertex; }
-  void setData(Vertex v){ ic_vertex = v; }
-  
-  ilcell *next(void){ return ic_next; }
-  void setNext(ilcell *n){ 
-    // release our resources
-    if(ic_next != NULL) delete ic_next;  
-    // acquire new resources
-    ic_next = n; 
-  }
-
-  ~ilcell(){ 
-    if(ILC_DEBUG) std::cerr << "Called ilcell::~ilcell() [destructor]" << std::endl;
-    // clean up resources
-    if(ic_next != NULL){
-      delete ic_next;
-    }
-  }
-  
-}; // end of class ilcell
-
 class Node {
+  // each node contains a pointer to its parent and to any one of its children
+  // children are linked together in a circular, doubly linked list
 private:
-  static const int r = 7; //=ceiling[log2(1/epsilon)] + 5, for epsilon = .25
-  int n_rank; // rank of a node never changes; rank of children = n_rank-1 if they exist
-  int n_targetSize; // target size of a node, given by calcTargetSize(n_rank)
-  int n_ckey; // upper bound on keys of elements in n_list
-  int n_listSize;
   
+  Node *n_parent;
+  Node *n_childList; // points to any one child in the child list
   Node *n_left;
   Node *n_right;
-  ilcell *n_list;
-  ilcell *n_list_tail;
-  
-  int calcTargetSize(int rank){
-    if(rank <= r)
-      return 1;
-    else
-      return std::ceil( (3*calcTargetSize(rank-1))/2 ); // choice of 3/2 is arbitrary; any constant between 1 and 2 would do
-  }
+  Vertex n_data, n_vertex;
+  int n_degree, n_numChildren; // number of children in child list
+  bool n_marked; // indicates whether node has lost a child since the last time node was made the child of another node (nodes start as unmarked, and are unmarked when it is made the child of another node)
 
 public:
   Node(){ 
     if(N_DEBUG) std::cerr << "Called Node::Node() [default constructor]" << std::endl;
-    n_rank = 0;
-    n_targetSize = calcTargetSize(n_rank);
-    n_ckey = -1;
-    n_listSize = 0;
-    n_left = NULL;
-    n_right = NULL;
-    n_list = NULL;
-    n_list_tail = NULL;
+    n_parent = NULL;
+    n_childList = NULL;
+    n_left = this;
+    n_right = this;
+    n_degree = n_numChildren = 0;
+    n_marked = false;
   }
   
   Node(Vertex v){
     if(N_DEBUG) std::cerr << "Called Node::Node(Vertex) [value constructor]" << std::endl;
-    n_rank = 0;
-    n_targetSize = 1;
-    n_ckey = v.key();
-    n_listSize = 1;
-    n_left = NULL;
-    n_right = NULL;
-    n_list = new ilcell(v);
-    n_list_tail = n_list;
+    n_parent = NULL;
+    n_childList = NULL;
+    n_left = this;
+    n_right = this;
+    n_degree = n_numChildren = 0;
+    n_marked = false;
+    n_data = n_vertex = v;
   }
 
   Node& operator=(const Node &n){
     if(N_DEBUG) std::cerr << "Called Node::operator=(const Node&) [assignment operator]" << std::endl;
     // check for self-assignment, only copy if different objects
     if(this != &n){
-      n_rank = n.n_rank;
-      n_targetSize = n.n_targetSize;
-      n_ckey = n.n_ckey;
-      n_listSize = n.n_listSize;
-      setLeft(n.n_left);
-      setRight(n.n_right);
-      setHead(n.n_list);
-      setTail(n.n_list_tail);
+      
     }
     return *this;
   }
@@ -252,4 +185,4 @@ public:
   }
 }; // end of class Tree
 
-#endif
+/***** START OF FHEAP *****/

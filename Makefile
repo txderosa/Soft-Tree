@@ -1,4 +1,4 @@
-TARGET = SoftHeap
+TARGET = MSTCompare
 GEN = GraphGen
 
 SRC = \
@@ -7,7 +7,8 @@ SRC = \
 	MST.cpp \
 	Graph.cpp \
 	DisjointComps.cpp \
-	SoftHeap.cpp
+	FHeap.cpp
+#	SoftHeap.cpp
 
 GEN_SRC = \
 	Generator.cpp 

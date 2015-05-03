@@ -70,11 +70,11 @@ int main(int argc, char **argv){
     Prim(graph, prim_mst);
     prim_timer.end();
     /*
-    Graph soft_mst(nVertices);
-    Timer soft_timer;
-    soft_timer.start();
-    Soft(graph, soft_mst);
-    soft_timer.end();
+    Graph fib_mst(nVertices);
+    Timer fib_timer;
+    fib_timer.start();
+    int fib_last_id = Fib(graph, fib_mst);
+    fib_timer.end();
     */
 
     // report timings
@@ -88,7 +88,7 @@ int main(int argc, char **argv){
       kruskal_mst.showEdges();
     }
 
-    fout << "Prim: " << 0.0 << std::endl;
+    fout << "Prim: ";
     prim_timer.printElapsedSeconds(fout);
     //prim_mst.printEdges(fout);  
     if(DEBUG){
@@ -96,14 +96,15 @@ int main(int argc, char **argv){
       prim_mst.showEdges();
     }
     
-    fout << "Soft Heap: " << 0.0 << std::endl;
-    //soft_timer.printElapsedSeconds(fout);
-    //soft_mst.printEdges(fout);
+    fout << "Fib Heap: " << 0.0 << std::endl;
+    //fib_timer.printElapsedSeconds(fout);
+    //fib_mst.printEdges(fout);
     /*
     if(DEBUG){
-      std::cerr << "Soft MST:" << std::endl;
-      soft_mst.showEdges();
-    }
+      std::cerr << "Fib MST:" << std::endl;
+      extractMST(fib_mst, fib_last_id);
+      fib_mst.showEdges();
+      }
     */
 
   }

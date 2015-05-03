@@ -1,6 +1,6 @@
 #include "Timer.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 Timer::Timer(){
   if(DEBUG) std::cerr << "Called Timer::Timer() [default constructor]" << std::endl;
