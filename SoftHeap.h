@@ -1,34 +1,36 @@
 #ifndef _SOFTHEAP_H_
 #define _SOFTHEAP_H_
 
-#include "Vertex.cpp"
 #include <limits>
 
-typedef struct ILCELL {
-	int key; 
-	struct ILCELL *next;
-} ilcell;
+class Queue{
+	public:
 
-typedef struct NODE {
-	int ckey, rank;
-	struct NODE *next, *child;
-	struct ILCELL *il, il_tail;
-} node;
+	const static int INFINITY = std::numeric_limits<int>::max();
 
-typedef struct HEAD {
-	struct NODE *heap;
-	struct HEAD *next, *prev, *suffixMin;
+	//Data members of Queue
+	int r = 7; //=ceiling[log2(1/epsilon)] + 5, for epsilon = .25
+	Tree *first;
 	int rank;
-} head;
 
-int r;
-static int INFINITY = std::numeric_limits<int>::max();
-void setR(int value);
-
-void insert(int newKey);
-void meld(node &q);
-void fixMinList(head &h);
-node* sift(node &v);
-void extractMin(void);
+	Queue();
+	Queue(Vertex v);
+	~Queue();
+	
+	Tree makeTree(Vertex v);
+	Node makeNode(Vertex v);
+	ilcell makeILCell(Vertex v);
+	Queue insert(Queue &p, Vertex &v);
+	void sift(Node &x);
+	Node combine(Node &x, Node &y);
+	Queue meld(Queue &p, Queue &q);
+	Vertex extractMin(Queue &p);
+	void mergeInto(Queue &p, Queue &q);
+	void repeatedCombine(Queue &q, int k);
+	void updateSuffixMin(Tree &t);
+	void insertTree(Queue &p, Tree &t1, Tree &t2);
+	void removeTree(Queue &p, Tree &t);
+	bool leaf(Node &x);
+};
 
 #endif
