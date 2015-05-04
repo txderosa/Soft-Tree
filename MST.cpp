@@ -98,6 +98,7 @@ Graph Kruskal(Graph g, Graph &mst){
   return mst;
 }
 
+/*
 int Fib(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Fib(Graph, Graph&)" << std::endl;
   // copy g into mst, and work build the MST inside of mst
@@ -141,7 +142,7 @@ int Fib(Graph g, Graph &mst){
 
   // return id of last vertex for tracing out the MST in mst
   return u_id;
-}
+} */
 
 void extractMST(Graph &mst, int lastID){
   if(DEBUG) std::cerr << "Called extractMST(Graph, int)" << std::endl;
