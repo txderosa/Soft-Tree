@@ -258,19 +258,26 @@ void FHeap::fibUnion(FHeap h2){
   this->size += h2.size;
 }
 
-void FHeap::cut(Node x, Node y){
+void FHeap::cut(Node *x, Node y){
   //remove x from childList of y
-  if(y.childList() != x){
+/*
+  if(y.childList() != &x){
     y.setChildList(y.childList()->right());
   }
   y.childList()->setLeft(y.childList()->right());
   y.childList()->setRight(y.childList()->left());
-  x.setDegree(x.degree() - 1);
-  x.setNumChildren(x.numChildren() -  1);
+*/
+  x->setLeft(x->right());
+  x->setRight(x->left());
+  x->parent()->setDegree(x->parent()->degree() - 1);
+  x->parent()->setNumChildren(x->parent()->numChildren() - 1);
+  x->setParent(NULL);
+  //y->setDegree(y->degree() - 1);
+  //y->setNumChildren(y->numChildren() -  1);
   //add x to rootList of H(this) 
   this->insertNode(x);
-  x.setParent(NULL);
-  x.setMarked(false);
+  x->setParent(NULL);
+  x->setMarked(false);
 }
 
 void FHeap::cascadingCut(Node y){
@@ -279,7 +286,7 @@ void FHeap::cascadingCut(Node y){
     if(y.marked() == false){ 
       y.setMarked(true); 
     } else {
-      this->cut(y, *y.parent());
+      this->cut(&y, *y.parent());
       this->cascadingCut(*y.parent());
     } 
   }
