@@ -15,6 +15,7 @@ private:
   Node *n_left;
   Node *n_right;
   Vertex n_data, n_vertex;
+  int n_key;
   int n_degree, n_numChildren; // number of children in child list
   bool n_marked; // indicates whether node has lost a child since the last time node was made the child of another node (nodes start as unmarked, and are unmarked when it is made the child of another node)
 
@@ -25,6 +26,7 @@ public:
     n_childList = NULL;
     n_left = this;
     n_right = this;
+    n_key = n_vertex.key();
     n_degree = n_numChildren = 0;
     n_marked = false;
   }
@@ -38,69 +40,113 @@ public:
     n_degree = n_numChildren = 0;
     n_marked = false;
     n_data = n_vertex = v;
+    n_key = n_vertex.key();
   }
 
   Node& operator=(const Node &n){
     if(N_DEBUG) std::cerr << "Called Node::operator=(const Node&) [assignment operator]" << std::endl;
     // check for self-assignment, only copy if different objects
     if(this != &n){
-      
+      n_parent = n.n_parent;
+      n_left = n.n_left;
+      n_right = n.n_right;
+      setChildList(n.n_childList);
+            
+      n_degree = n_numChildren = n.n_degree;
+      n_marked = n.n_marked;
+      n_data = n_vertex = n.n_vertex;      
+      n_key = n.n_key;
     }
+    
     return *this;
   }
 
-  int rank(void) const{ return n_rank; }
-  void setRank(int r){ n_rank = r; }
+  int degree(void) const{ return n_degree; }
+  int numChildren(void) const{ return n_numChildren; }
+  int key(void) const{ return n_key; }
+  
+  bool marked(void) const{ return n_marked; }
+  void setMarked(bool m) { n_marked = m; }
 
-  int targetSize(void) const{ return n_targetSize; }
-  void setTargetSize(int ts){ n_targetSize = ts; }
-
-  int ckey(void) const{ return n_ckey; }
-  void setCkey(int c){ n_ckey = c; }
-
-  int size(void) const{ return n_listSize; }
+  Vertex& data(void){ return n_data; }
+  Vertex& vertex(void){ return n_vertex; }
+  void setData(Vertex v){ 
+    n_data = n_vertex = v; 
+    n_key = v.key();
+  }
+  void setVertex(Vertex v){ 
+    n_vertex = n_data = v; 
+    n_key = v.key();
+  }
 
   Node *left(void){ return n_left; }
-  void setLeft(Node *l){ 
-    // release our resources
-    if(n_left != NULL) delete n_left;  
-    // acquire new resources
+  Node *setLeft(Node *l){ 
+    Node *tmp = n_left;
     n_left = l; 
+    return tmp;
   }
 
   Node *right(void){ return n_right; }
-  void setRight(Node *r){ 
-    // release our resources
-    if(n_right != NULL) delete n_right;  
-    // acquire new resources
+  Node *setRight(Node *r){ 
+    Node *tmp = n_right;
     n_right = r; 
+    return tmp;
   }
   
-  ilcell *head(void){ return n_list; }
-  void setHead(ilcell *h){ 
-    // release our resources
-    if(n_list != NULL) delete n_list;  
-    // acquire new resources
-    n_list = h; 
+  Node *parent(void){ return n_parent; }
+  Node *setParent(Node *p){ 
+    Node *tmp = n_parent;
+    n_parent = p;
+    return tmp;
   }
   
-  ilcell *tail(void){ return n_list_tail; }
-  void setTail(ilcell *t){ 
-    // release our resources
-    if(n_list_tail != NULL) delete n_list_tail;  
-    // acquire new resources
-    n_list_tail = t; 
+  Node *childList(void){ return n_childList; }
+  void setChildList(Node *cl){ 
+    // release current children
+    Node *cur = n_childList;
+    while(cur->n_right != cur){
+      Node *tmp = cur->n_right;
+      delete cur;
+      cur = tmp;
+    }
+    delete cur;
+    // acquire new children
+    n_childList = cl;
   }
   
   ~Node(){
     if(N_DEBUG) std::cerr << "Called Node::~Node() [destructor]" << std::endl;
     // clean up resources
-    if(n_left != NULL) delete n_left;
-    if(n_right != NULL) delete n_right;
-    if(n_list != NULL) delete n_list; // this should take care of n_list_tail as well
+    if(n_parent != NULL) n_parent = NULL;
+    if(n_childList != NULL) delete n_childList; // !!!
+
+    if( (n_left == this) && (n_right == this) ){
+      // only child
+      n_left = NULL;
+      n_right = NULL;
+    }
+    else{
+      // has siblings, adjust their pointers
+      if(n_left == n_right){
+	// has 1 sibling, set sibling to point to itself
+	Node *sibling = n_left;
+	sibling->n_right = sibling;
+	sibling->n_left = sibling;
+      }
+      else{
+	// has more than 1 sibling, set left to point to right
+	n_left->n_right = n_right;
+	n_right->n_left = n_left;
+      }
+      n_left = NULL;
+      n_right = NULL;
+    }
+    
   }
+  
 }; // end of class Node
 
+/*
 class Tree {
   // a tree in a soft heap has min-heap property with respect to a node's ckey value (ie, if x is a node and x.left exists, then x.ckey <= x.left.ckey; if x.right exists, then x.ckey <= x.right.ckey)
 private:
@@ -184,5 +230,6 @@ public:
     if(t_sufmin != NULL) t_sufmin = NULL;
   }
 }; // end of class Tree
+*/
 
 /***** START OF FHEAP *****/

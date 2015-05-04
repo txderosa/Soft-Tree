@@ -4,13 +4,14 @@
 #include <iostream>
 
 class Node;
-class Tree;
+//class Tree;
 
 class FHeap{
 
  private:
   int size;
-  Tree *cur;
+  //Tree *rootList;
+  Node *rootList;
   Node *min;
 
   fibUnion();

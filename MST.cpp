@@ -1,9 +1,4 @@
-#include <algorithm> // for Kruskal: sort()
-#include <limits> //For infinity in Prim
-
 #include "MST.h"
-#include "DisjointComps.h" // for Kruskal
-#include "SoftHeap.h" // for Soft
 
 #define DEBUG 0 // 1 to turn debug on
 
