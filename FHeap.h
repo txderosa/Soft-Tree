@@ -10,10 +10,10 @@ class FHeap{
 
  private:
   int size;
-  Tree *cur;
+  Tree *rootList; 
   Node *min;
 
-  fibUnion();
+  fibUnion(FHeap h2);
   consolidate();
   cut();
   cascadingCut();

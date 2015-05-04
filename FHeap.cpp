@@ -186,3 +186,26 @@ public:
 }; // end of class Tree
 
 /***** START OF FHEAP *****/
+
+void fibUnion(FHeap h2){
+  //concatenate h2.rootList to this.rootList
+  //if this.rootList is empty
+  if(this->rootList->t_next != NULL && this->rootList->t_prev != NULL){
+    this->rootList->t_next = h2.rootList.t_next;
+    this->rootList->t_prev = h2.rootList.t_prev;
+  //if h2.rootList is empty
+  } else if(h2.rootList->t_next != NULL && h2.rootList->t_prev != NULL){
+    //do nothing
+  //if this and h2 are both non-empty, concatenate 
+  } else {
+    h2.rootList->t_prev->t_next = this->rootList->t_next;
+    this->rootList->t_next->t_prev = h2.rootList->t_prev;
+    h2.rootList->t_prev = this->rootList;
+    this->rootList->t_next = h2.rootList; 
+    
+  }
+  if(this->min == NULL || (h2.min != NULL && h2.min.key < this->min->key )){
+    this->min = h2.min;
+  }
+  this->size += h2.size;
+}
