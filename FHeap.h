@@ -23,9 +23,10 @@ class FHeap{
  public:
   FHeap();
   
-  insert();
+  void insertVertex(Vertex v);
+  void insertNode(Node n);
   minimum();
-  extractMin();
+  Vertex extractMin();
   decreaseKey();
 
   ~FHeap();

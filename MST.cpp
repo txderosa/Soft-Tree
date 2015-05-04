@@ -44,8 +44,8 @@ Graph Prim(Graph g, Graph &mst){
 	g.vertex(std::get<0>(adj_u[i])).setKey(std::get<1>(adj_u[i]));
       }
     }
-    
   }
+  /*
   
   for(int i = 0; i < g.numVertices(); i++)
   {
@@ -57,7 +57,7 @@ Graph Prim(Graph g, Graph &mst){
       //g.vertex(i).setParent(-1);
     }
   }
-  
+  */
   return mst;
 }
 
