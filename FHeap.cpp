@@ -233,3 +233,73 @@ public:
 */
 
 /***** START OF FHEAP *****/
+  void insertVertex(Vertex v)
+  { 
+    Node n(v);
+    n.degree = 0;
+    n.parent = NULL; 
+    n.child = NULL;
+    n.mark = false;
+    if(getMin() == NULL)
+    {
+	    rootList = new Tree(n);
+	    setMin(n);
+     }
+    else
+    {
+      rootList->insert(n);
+      if(n.key < getMin())
+      {
+	setMin(n);
+      }
+    }
+    size = size + 1;
+  }
+
+  void insertNode(Node n)
+  { 
+    n.degree = 0;
+    n.parent = NULL; 
+    n.child = NULL;
+    n.mark = false;
+    if(getMin() == NULL)
+    {
+	    rootList = new Tree(n);
+	    setMin(n);
+     }
+    else
+    {
+      rootList->insert(n);
+      if(n.key < getMin())
+      {
+	setMin(n);
+      }
+    }
+    size = size + 1;
+  }
+
+  Node extractMin()
+  {
+    Node z = getMin();
+    if(z != NULL)
+    {
+      for(int i = 0; i < z.getChildren(); i ++)
+      {
+        rootList->insert(z.getChild(i));
+	x.p = NULL;
+      }
+      rootList.remove(z);
+      if(z.right == z)
+      {
+	setMin(NULL);
+      }
+      else
+      {
+	setMin(z.right);
+	consolidate();
+      }
+      size = size - 1;
+      return z;
+    }
+  }
+	
