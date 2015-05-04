@@ -258,7 +258,7 @@ void FHeap::fibUnion(FHeap h2){
   this->size += h2.size;
 }
 
-void FHeap::cut(Node *x, Node y){
+void FHeap::cut(Node *x){
   //remove x from childList of y
 /*
   if(y.childList() != &x){
@@ -286,7 +286,7 @@ void FHeap::cascadingCut(Node *y){
     if(y->marked() == false){ 
       y->setMarked(true); 
     } else {
-      this->cut(y, *y->parent());
+      this->cut(y);
       this->cascadingCut(y->parent());
     } 
   }
