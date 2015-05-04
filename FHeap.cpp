@@ -274,13 +274,13 @@ void FHeap::cut(Node x, Node y){
 }
 
 void FHeap::cascadingCut(Node y){
-  Node n = y.parent();
+ // Node n = y.parent();
   if(y.parent() != NULL){
     if(y.marked() == false){ 
       y.setMarked(true); 
     } else {
-      this->cut(y, y.parent());
-      this->cascadingCut(y.parent());
+      this->cut(y, *y.parent());
+      this->cascadingCut(*y.parent());
     } 
   }
 }
