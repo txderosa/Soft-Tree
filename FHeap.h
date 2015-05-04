@@ -18,7 +18,7 @@ class FHeap{
   void fibUnion(FHeap h2);//Tom
 //  consolidate();//Toren
   void cut(Node *x, Node y);//Tom
-  void cascadingCut(Node n);//Tom
+  void cascadingCut(Node *n);//Tom
  // delete();//Toren
   
  public:
