@@ -13,19 +13,20 @@ class FHeap{
   Tree *rootList; 
   Node *min;
 
-  fibUnion(FHeap h2);
-  consolidate();
-  cut();
-  cascadingCut();
-  delete();
+  void fibUnion(FHeap h2);//Tom
+  consolidate();//Toren
+  void cut(Node &x, Node &y);//Tom
+  cascadingCut();//Tom
+  delete();//Toren
   
  public:
   FHeap();
   
-  insert();
-  minimum();
-  extractMin();
-  decreaseKey();
+  void insertVertex(Vertex v);//toren
+  void insertNode(Node n);//toren
+  minimum();//tom
+  extractMin();//torn
+  decreaseKey();//toren
 
   ~FHeap();
 

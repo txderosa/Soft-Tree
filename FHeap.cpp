@@ -190,22 +190,37 @@ public:
 void fibUnion(FHeap h2){
   //concatenate h2.rootList to this.rootList
   //if this.rootList is empty
-  if(this->rootList->t_next != NULL && this->rootList->t_prev != NULL){
-    this->rootList->t_next = h2.rootList.t_next;
-    this->rootList->t_prev = h2.rootList.t_prev;
+  if(this->rootList->t_right != NULL && this->rootList->t_left != NULL){
+    this->rootList->t_right = h2.rootList.t_right;
+    this->rootList->t_left = h2.rootList.t_left;
   //if h2.rootList is empty
-  } else if(h2.rootList->t_next != NULL && h2.rootList->t_prev != NULL){
+  } else if(h2.rootList->t_right != NULL && h2.rootList->t_left != NULL){
     //do nothing
   //if this and h2 are both non-empty, concatenate 
   } else {
-    h2.rootList->t_prev->t_next = this->rootList->t_next;
-    this->rootList->t_next->t_prev = h2.rootList->t_prev;
-    h2.rootList->t_prev = this->rootList;
-    this->rootList->t_next = h2.rootList; 
+    h2.rootList->t_left->t_right = this->rootList->t_right;
+    this->rootList->t_right->t_left = h2.rootList->t_left;
+    h2.rootList->t_left = this->rootList;
+    this->rootList->t_right = h2.rootList; 
     
   }
   if(this->min == NULL || (h2.min != NULL && h2.min.key < this->min->key )){
     this->min = h2.min;
   }
   this->size += h2.size;
+}
+
+void cut(Node &x, Node &y){
+  //remove x from childList of y
+  if(y->n_childList != x){
+    y->n_childList = y->n_childList->n_right;
+  }
+  y->n_childList->n_left = y->n_childList->n_right;
+  y->n_childList->n_right = y->n_childList->n_left;
+  x->n_degree -= 1;
+  x->n_numChildren -= 1;
+  //add x to rootList of H(this) 
+  this.insertNode(x);
+  x->n_parent = NULL;
+  x->marked = false;
 }
