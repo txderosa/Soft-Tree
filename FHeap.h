@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "Vertex.cpp"
+
 class Node;
 //class Tree;
 
@@ -19,14 +21,16 @@ class FHeap{
   cut();
   cascadingCut();
   delete();
-  
+  void link(Node *child, Node *parent);
+
  public:
   FHeap();
-  
+  FHeap(Vertex v);
+
   void insertVertex(Vertex v);
-  void insertNode(Node n);
+  void insertNode(Node *n);
   minimum();
-  Vertex extractMin();
+  Vertex extractMin(void);
   decreaseKey();
 
   ~FHeap();

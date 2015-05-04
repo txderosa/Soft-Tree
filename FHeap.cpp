@@ -1,9 +1,8 @@
 #include "FHeap.h"
-#include "Vertex.cpp"
 
 #define DEBUG 1 // 1 to turn debug on for FHeap
 #define N_DEBUG 1 // 1 to turn debug on for Node
-#define T_DEBUG 1 // 1 to turn debug on for Tree
+//#define T_DEBUG 1 // 1 to turn debug on for Tree
 
 class Node {
   // each node contains a pointer to its parent and to any one of its children
@@ -62,7 +61,9 @@ public:
   }
 
   int degree(void) const{ return n_degree; }
+  void setDegree(int d){ n_degree = n_numChildren = d; }
   int numChildren(void) const{ return n_numChildren; }
+  void setNumChildren(int n){ n_numChildren = n_degree = n; }
   int key(void) const{ return n_key; }
   
   bool marked(void) const{ return n_marked; }
@@ -102,23 +103,35 @@ public:
   
   Node *childList(void){ return n_childList; }
   void setChildList(Node *cl){ 
-    // release current children
-    Node *cur = n_childList;
-    while(cur->n_right != cur){
-      Node *tmp = cur->n_right;
+     // release current children
+    if(n_childList != NULL){
+      Node *cur = n_childList;
+      while(cur->n_right != cur){
+	Node *tmp = cur->n_right;
+	delete cur;
+	cur = tmp;
+      }
       delete cur;
-      cur = tmp;
     }
-    delete cur;
     // acquire new children
     n_childList = cl;
   }
-  
+  void setCLNULL(void){ n_childList = NULL; }
+  void insertChild(Node *child){
+    Node *clLeft = n_childList->left();
+    child->setLeft(clLeft);
+    child->setRight(n_childList);
+    clLeft->setRight(child);
+    n_childList->setLeft(child);
+    n_degree++;
+    n_numChildren++;
+  }
+
   ~Node(){
     if(N_DEBUG) std::cerr << "Called Node::~Node() [destructor]" << std::endl;
     // clean up resources
     if(n_parent != NULL) n_parent = NULL;
-    if(n_childList != NULL) delete n_childList; // !!!
+    if(n_childList != NULL) setChildList(NULL);
 
     if( (n_left == this) && (n_right == this) ){
       // only child
@@ -233,73 +246,134 @@ public:
 */
 
 /***** START OF FHEAP *****/
-  void insertVertex(Vertex v)
-  { 
-    Node n(v);
-    n.degree = 0;
-    n.parent = NULL; 
-    n.child = NULL;
-    n.mark = false;
-    if(getMin() == NULL)
-    {
-	    rootList = new Tree(n);
-	    setMin(n);
-     }
-    else
-    {
-      rootList->insert(n);
-      if(n.key < getMin())
-      {
-	setMin(n);
-      }
-    }
-    size = size + 1;
-  }
+FHeap::FHeap(){
+  if(DEBUG) std::cerr << "Called FHeap::FHeap() [default constructor]" << std::endl;
+  size = 0;
+  rootList = NULL;
+  min = NULL;
+}
 
-  void insertNode(Node n)
-  { 
-    n.degree = 0;
-    n.parent = NULL; 
-    n.child = NULL;
-    n.mark = false;
-    if(getMin() == NULL)
-    {
-	    rootList = new Tree(n);
-	    setMin(n);
-     }
-    else
-    {
-      rootList->insert(n);
-      if(n.key < getMin())
-      {
-	setMin(n);
-      }
-    }
-    size = size + 1;
-  }
+FHeap::FHeap(Vertex v){
+  if(DEBUG) std::cerr << "Called FHeap::FHeap() [value constructor]" << std::endl;
+  size = 1;
+  Node *n = new Node(v);
+  rootList = n;
+  min = n;
+}
 
-  Node extractMin()
-  {
-    Node z = getMin();
-    if(z != NULL)
+FHeap::~FHeap(){
+  if(DEBUG) std::cerr << "Called FHeap::FHeap() [destructor]" << std::endl;
+  // clean up resources
+  if(min != NULL) min = NULL;
+  if(rootList != NULL){ // this will take care of deleting min
+    Node n;
+    n.setChildList(rootList);
+    n.setChildList(NULL);
+    // above code is same as below:
+    /*
+    Node *cur = rootList;
+    while(cur->n_right != cur){
+      Node *tmp = cur->n_right;
+      delete cur;
+      cur = tmp;
+    }
+    delete cur;
+    */
+  }
+  
+}
+
+void FHeap::insertVertex(Vertex v)
+{ 
+  Node *n = new Node(v);
+  if(min == NULL)
     {
-      for(int i = 0; i < z.getChildren(); i ++)
+      rootList = n;
+      min = n;
+      size = 1;
+    }
+  else
+    {
+      insertNode(n);
+    }
+  
+}
+
+
+void FHeap::insertNode(Node *n)
+{ 
+  // assumes heap is not empty
+  // insert n into rootList, new node is added to left of root
+  Node *rootLeft = rootList->left();
+  n->setLeft(rootLeft);
+  n->setRight(rootList);
+  rootLeft->setRight(n);
+  rootList->setLeft(n);
+  if(n->key() < min->key())
+    {
+      min = n;
+    }
+  size = size + 1;
+  
+}
+
+
+Vertex FHeap::extractMin(void)
+{
+  Node *z = min;
+  if(z != NULL)
+    {
+      Node *cur = z.childList();
+      for(int i = 0; i < z->degree(); i++)
+	{ 
+	  Node *tmp = cur->right();
+	  cur->setParent(NULL);
+	  insertNode(cur);
+	  cur = tmp;
+	}
+      z->setCLNULL();
+      if(z->right() == z)
       {
-        rootList->insert(z.getChild(i));
-	x.p = NULL;
-      }
-      rootList.remove(z);
-      if(z.right == z)
-      {
-	setMin(NULL);
+	min = NULL;
       }
       else
       {
-	setMin(z.right);
+	min = z->right();
 	consolidate();
       }
       size = size - 1;
-      return z;
+      Vertex v = z->data();
+      delete z;	    
+      return v;
     }
+  else{
+    std::cerr << "FHeap: heap is empty, cannot extractMin" << std::endl;
+    exit(EXIT_FAILURE);
   }
+  return Vertex();
+}
 	
+void FHeap::link(Node *child, Node *parent){
+  // remove child from the rootList
+  if(child->left() == child->right()){
+    // has 1 sibling, set sibling to point to itself
+    Node *sibling = child->left();n_left;
+    sibling->setRight(sibling);
+    sibling->setLeft(sibling);
+  }
+  else{
+    // has more than 1 sibling, set left to point to right
+    child->left()->setRight(child->right());
+    child->right()->setLeft(child->left());
+  }
+  child->setLeft(NULL);
+  child->setRight(NULL);
+  
+  // make child a child of parent, increment parent's degree
+  parent->insertChild(child);
+
+  // child.mark = false
+  child->setMarked(false);
+  
+}
+
