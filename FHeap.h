@@ -13,8 +13,8 @@ class FHeap{
   Tree *rootList;
   Node *min;
 
-  fibUnion();
-  consolidate();
+  fibUnion(); 
+  consolidate();//Toren
   cut();
   cascadingCut();
   delete();
@@ -24,9 +24,9 @@ class FHeap{
   
   void insertVertex(Vertex v);
   void insertNode(Node n);
-  minimum();
-  Vertex extractMin();
-  decreaseKey();
+  minimum(); 
+  Vertex extractMin(Vertex v, int k);
+  decreaseKey();//Toren
 
   ~FHeap();
 

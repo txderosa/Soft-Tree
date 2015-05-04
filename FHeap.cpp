@@ -186,73 +186,66 @@ public:
 }; // end of class Tree
 
 /***** START OF FHEAP *****/
-  void insertVertex(Vertex v)
-  { 
-    Node n(v);
-    n.degree = 0;
-    n.parent = NULL; 
-    n.child = NULL;
-    n.mark = false;
-    if(getMin() == NULL)
-    {
-	    rootList = new Tree(n);
-	    setMin(n);
-     }
-    else
-    {
-      rootList->insert(n);
-      if(n.key < getMin())
-      {
-	setMin(n);
-      }
-    }
-    size = size + 1;
-  }
-
-  void insertNode(Node n)
-  { 
-    n.degree = 0;
-    n.parent = NULL; 
-    n.child = NULL;
-    n.mark = false;
-    if(getMin() == NULL)
-    {
-	    rootList = new Tree(n);
-	    setMin(n);
-     }
-    else
-    {
-      rootList->insert(n);
-      if(n.key < getMin())
-      {
-	setMin(n);
-      }
-    }
-    size = size + 1;
-  }
-
-  Node extractMin()
+  void FHeap::consolidate()
   {
-    Node z = getMin();
-    if(z != NULL)
+    double phi = 1.61803;
+    int magicNum = (int)std::floor(std::log10(size)/ std::log10(phi));
+    vector<Node*> array(magicNum, NULL);
+    for(int i = 0; i < rootList->size(); i++)
     {
-      for(int i = 0; i < z.getChildren(); i ++)
+	Node *x = rootList;
+        d = x.degree;
+	while(array[d] != NULL)
+	{
+          Node y = array[d]; 
+          if(x.key > y.key)
+	  {
+            SWAP(x,y);
+          }
+          heapLink(x,y);
+          array[d] = NULL;
+          d = d + 1;
+        }
+        array[d] = x;
+    }
+    min = NULL;
+    for(int i = 0; i < magicNum; i++)
+    {
+      if(array[i] != NULL)
       {
-        rootList->insert(z.getChild(i));
-	x.p = NULL;
+	if(min == NULL)
+        {
+	  rootList = new Tree(array[i]);
+	  min = array[i];
+	}
+	else
+	{
+	  rootList->insert(array[i]);
+	  if(array[i].key < min->key)
+	  {
+	    min = array[i];
+	  }
+	}
       }
-      rootList.remove(z);
-      if(z.right == z)
-      {
-	setMin(NULL);
-      }
-      else
-      {
-	setMin(z.right);
-	consolidate();
-      }
-      size = size - 1;
-      return z;
     }
   }
-	
+  void FHeap::decreaseKey(Vertex v, int k)
+  {
+   Node *x = handles[v.id];
+   if(k > x->key())
+   {
+     std::cerr << "New key is greater than current key" << std::endl;
+   }
+   x->setKey(k);
+   Node *y = x->parent();
+   if(y != NULL && x->key() < y->key())
+   {
+     x->cut(y);
+     x->cascadingCut(y);
+   }
+   if(x->key() < min->key())
+   {
+     min = x;  
+   }
+  }
+              
