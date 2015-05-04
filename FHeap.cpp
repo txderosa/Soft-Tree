@@ -15,6 +15,7 @@ private:
   Node *n_left;
   Node *n_right;
   Vertex n_data, n_vertex;
+  int n_key;
   int n_degree, n_numChildren; // number of children in child list
   bool n_marked; // indicates whether node has lost a child since the last time node was made the child of another node (nodes start as unmarked, and are unmarked when it is made the child of another node)
 
@@ -25,6 +26,7 @@ public:
     n_childList = NULL;
     n_left = this;
     n_right = this;
+    n_key = n_vertex.key();
     n_degree = n_numChildren = 0;
     n_marked = false;
   }
@@ -38,69 +40,115 @@ public:
     n_degree = n_numChildren = 0;
     n_marked = false;
     n_data = n_vertex = v;
+    n_key = n_vertex.key();
   }
 
   Node& operator=(const Node &n){
     if(N_DEBUG) std::cerr << "Called Node::operator=(const Node&) [assignment operator]" << std::endl;
     // check for self-assignment, only copy if different objects
     if(this != &n){
-      
+      n_parent = n.n_parent;
+      n_left = n.n_left;
+      n_right = n.n_right;
+      setChildList(n.n_childList);
+            
+      n_degree = n_numChildren = n.n_degree;
+      n_marked = n.n_marked;
+      n_data = n_vertex = n.n_vertex;      
+      n_key = n.n_key;
     }
+    
     return *this;
   }
 
-  int rank(void) const{ return n_rank; }
-  void setRank(int r){ n_rank = r; }
+  int degree(void) const{ return n_degree; }
+  void setDegree(int d){ n_degree = d; }
+  int numChildren(void) const{ return n_numChildren; }
+  void setNumChildren(int n){ n_numChildren = n; }
+  int key(void) const{ return n_key; }
+  
+  bool marked(void) const{ return n_marked; }
+  void setMarked(bool m) { n_marked = m; }
 
-  int targetSize(void) const{ return n_targetSize; }
-  void setTargetSize(int ts){ n_targetSize = ts; }
-
-  int ckey(void) const{ return n_ckey; }
-  void setCkey(int c){ n_ckey = c; }
-
-  int size(void) const{ return n_listSize; }
+  Vertex& data(void){ return n_data; }
+  Vertex& vertex(void){ return n_vertex; }
+  void setData(Vertex v){ 
+    n_data = n_vertex = v; 
+    n_key = v.key();
+  }
+  void setVertex(Vertex v){ 
+    n_vertex = n_data = v; 
+    n_key = v.key();
+  }
 
   Node *left(void){ return n_left; }
-  void setLeft(Node *l){ 
-    // release our resources
-    if(n_left != NULL) delete n_left;  
-    // acquire new resources
+  Node *setLeft(Node *l){ 
+    Node *tmp = n_left;
     n_left = l; 
+    return tmp;
   }
 
   Node *right(void){ return n_right; }
-  void setRight(Node *r){ 
-    // release our resources
-    if(n_right != NULL) delete n_right;  
-    // acquire new resources
+  Node *setRight(Node *r){ 
+    Node *tmp = n_right;
     n_right = r; 
+    return tmp;
   }
   
-  ilcell *head(void){ return n_list; }
-  void setHead(ilcell *h){ 
-    // release our resources
-    if(n_list != NULL) delete n_list;  
-    // acquire new resources
-    n_list = h; 
+  Node *parent(void){ return n_parent; }
+  Node *setParent(Node *p){ 
+    Node *tmp = n_parent;
+    n_parent = p;
+    return tmp;
   }
   
-  ilcell *tail(void){ return n_list_tail; }
-  void setTail(ilcell *t){ 
-    // release our resources
-    if(n_list_tail != NULL) delete n_list_tail;  
-    // acquire new resources
-    n_list_tail = t; 
+  Node *childList(void){ return n_childList; }
+  void setChildList(Node *cl){ 
+    // release current children
+    Node *cur = n_childList;
+    while(cur->n_right != cur){
+      Node *tmp = cur->n_right;
+      delete cur;
+      cur = tmp;
+    }
+    delete cur;
+    // acquire new children
+    n_childList = cl;
   }
   
   ~Node(){
     if(N_DEBUG) std::cerr << "Called Node::~Node() [destructor]" << std::endl;
     // clean up resources
-    if(n_left != NULL) delete n_left;
-    if(n_right != NULL) delete n_right;
-    if(n_list != NULL) delete n_list; // this should take care of n_list_tail as well
+    if(n_parent != NULL) n_parent = NULL;
+    if(n_childList != NULL) delete n_childList; // !!!
+
+    if( (n_left == this) && (n_right == this) ){
+      // only child
+      n_left = NULL;
+      n_right = NULL;
+    }
+    else{
+      // has siblings, adjust their pointers
+      if(n_left == n_right){
+	// has 1 sibling, set sibling to point to itself
+	Node *sibling = n_left;
+	sibling->n_right = sibling;
+	sibling->n_left = sibling;
+      }
+      else{
+	// has more than 1 sibling, set left to point to right
+	n_left->n_right = n_right;
+	n_right->n_left = n_left;
+      }
+      n_left = NULL;
+      n_right = NULL;
+    }
+    
   }
+  
 }; // end of class Node
 
+/*
 class Tree {
   // a tree in a soft heap has min-heap property with respect to a node's ckey value (ie, if x is a node and x.left exists, then x.ckey <= x.left.ckey; if x.right exists, then x.ckey <= x.right.ckey)
 private:
@@ -184,43 +232,43 @@ public:
     if(t_sufmin != NULL) t_sufmin = NULL;
   }
 }; // end of class Tree
+*/
 
 /***** START OF FHEAP *****/
 
-void fibUnion(FHeap h2){
+void FHeap::fibUnion(FHeap h2){
   //concatenate h2.rootList to this.rootList
   //if this.rootList is empty
-  if(this->rootList->t_right != NULL && this->rootList->t_left != NULL){
-    this->rootList->t_right = h2.rootList.t_right;
-    this->rootList->t_left = h2.rootList.t_left;
+  if(this->rootList->right() != NULL && this->rootList->left() != NULL){
+    this->rootList->setRight(h2.rootList->right());
+    this->rootList->setLeft(h2.rootList->left());
   //if h2.rootList is empty
-  } else if(h2.rootList->t_right != NULL && h2.rootList->t_left != NULL){
+  } else if(h2.rootList->right() != NULL && h2.rootList->left() != NULL){
     //do nothing
   //if this and h2 are both non-empty, concatenate 
   } else {
-    h2.rootList->t_left->t_right = this->rootList->t_right;
-    this->rootList->t_right->t_left = h2.rootList->t_left;
-    h2.rootList->t_left = this->rootList;
-    this->rootList->t_right = h2.rootList; 
-    
+    h2.rootList->left()->setRight(this->rootList->right());
+    this->rootList->right()->setLeft(h2.rootList->left());
+    h2.rootList->setLeft(this->rootList);
+    this->rootList->setRight(h2.rootList); 
   }
-  if(this->min == NULL || (h2.min != NULL && h2.min.key < this->min->key )){
+  if(this->min == NULL || (h2.min != NULL && h2.min->key() < this->min->key() )){
     this->min = h2.min;
   }
   this->size += h2.size;
 }
 
-void cut(Node &x, Node &y){
+void FHeap::cut(Node &x, Node &y){
   //remove x from childList of y
-  if(y->n_childList != x){
-    y->n_childList = y->n_childList->n_right;
+  if(y.childList() != x){
+    y.setChildList(y.childList()->right());
   }
-  y->n_childList->n_left = y->n_childList->n_right;
-  y->n_childList->n_right = y->n_childList->n_left;
-  x->n_degree -= 1;
-  x->n_numChildren -= 1;
+  y.childList()->setLeft(y.childList()->right());
+  y.childList()->setRight(y.childList()->left());
+  x.setDegree(x.degree() - 1);
+  x.setNumChildren(x.numChildren() -  1);
   //add x to rootList of H(this) 
-  this.insertNode(x);
-  x->n_parent = NULL;
-  x->marked = false;
+  this->insertNode(x);
+  x.setParent(NULL);
+  x.setMarked(false);
 }

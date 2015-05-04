@@ -4,29 +4,30 @@
 #include <iostream>
 
 class Node;
-class Tree;
+//class Tree;
 
 class FHeap{
 
  private:
   int size;
-  Tree *rootList; 
+  //Tree *rootList;
+  Node *rootList;
   Node *min;
 
   void fibUnion(FHeap h2);//Tom
-  consolidate();//Toren
+//  consolidate();//Toren
   void cut(Node &x, Node &y);//Tom
-  cascadingCut();//Tom
-  delete();//Toren
+  //cascadingCut();//Tom
+ // delete();//Toren
   
  public:
   FHeap();
   
   void insertVertex(Vertex v);//toren
   void insertNode(Node n);//toren
-  minimum();//tom
-  extractMin();//torn
-  decreaseKey();//toren
+ // minimum();//tom
+ // extractMin();//torn
+ // decreaseKey();//toren
 
   ~FHeap();
 
