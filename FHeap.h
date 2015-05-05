@@ -2,6 +2,7 @@
 #define FHEAP_H
 
 #include <iostream>
+#include <cmath> // floor and log10
 #include "Vertex.cpp"
 
 class Node;
@@ -14,7 +15,7 @@ class FHeap{
   Node *min;
   
   void fibUnion(FHeap h2);//Tom
-  //  consolidate();//Toren
+  void consolidate(void);//Toren
   void cut(Node *x);//Tom
   void cascadingCut(Node *n);//Tom
   // delete();//Toren
@@ -23,12 +24,13 @@ class FHeap{
  public:
   FHeap();
   FHeap(Vertex v);
+  ~FHeap();  
 
   void insertVertex(Vertex v);//toren
   void insertNode(Node *n);//toren
-  Node* minimum();//tom
+  Node* minimum(void);//tom
   Vertex extractMin(void);
-  decreaseKey();
+  void decreaseKey(Vertex v, int k);
  
 }; // end of class FHeap
 

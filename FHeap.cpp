@@ -64,7 +64,11 @@ public:
   int numChildren(void) const{ return n_numChildren; }
   void setNumChildren(int n){ n_numChildren = n_degree = n; }
   int key(void) const{ return n_key; }
-  
+  void setKey(int k){
+    n_vertex.setKey(k);
+    n_key = k;
+  }
+
   bool marked(void) const{ return n_marked; }
   void setMarked(bool m) { n_marked = m; }
 
@@ -196,6 +200,131 @@ FHeap::~FHeap(){
   
 }
 
+void FHeap::fibUnion(FHeap h2){
+  //concatenate h2.rootList to this.rootList
+  //if this.rootList is empty
+  if(this->rootList->right() != NULL && this->rootList->left() != NULL){
+    this->rootList->setRight(h2.rootList->right());
+    this->rootList->setLeft(h2.rootList->left());
+  //if h2.rootList is empty
+  } else if(h2.rootList->right() != NULL && h2.rootList->left() != NULL){
+    //do nothing
+  //if this and h2 are both non-empty, concatenate 
+  } else {
+    h2.rootList->left()->setRight(this->rootList->right());
+    this->rootList->right()->setLeft(h2.rootList->left());
+    h2.rootList->setLeft(this->rootList);
+    this->rootList->setRight(h2.rootList); 
+  }
+  if(this->min == NULL || (h2.min != NULL && h2.min->key() < this->min->key() )){
+    this->min = h2.min;
+  }
+  this->size += h2.size;
+}
+
+void FHeap::consolidate(void)
+{
+    double phi = 1.61803;
+    int magicNum = (int)std::floor(std::log10(size)/ std::log10(phi));
+    vector<Node*> array(magicNum, NULL);
+    for(int i = 0; i < rootList->size(); i++)
+    {
+	Node *x = rootList;
+        d = x.degree;
+	while(array[d] != NULL)
+	{
+          Node y = array[d]; 
+          if(x.key > y.key)
+	  {
+            SWAP(x,y);
+          }
+          heapLink(x,y);
+          array[d] = NULL;
+          d = d + 1;
+        }
+        array[d] = x;
+    }
+    min = NULL;
+    for(int i = 0; i < magicNum; i++)
+    {
+      if(array[i] != NULL)
+      {
+	if(min == NULL)
+        {
+	  rootList = new Tree(array[i]);
+	  min = array[i];
+	}
+	else
+	{
+	  rootList->insert(array[i]);
+	  if(array[i].key < min->key)
+	  {
+	    min = array[i];
+	  }
+	}
+      }
+    }
+}
+
+void FHeap::link(Node *child, Node *parent){
+  // remove child from the rootList
+  if(child->left() == child->right()){
+    // has 1 sibling, set sibling to point to itself
+    Node *sibling = child->left();n_left;
+    sibling->setRight(sibling);
+    sibling->setLeft(sibling);
+  }
+  else{
+    // has more than 1 sibling, set left to point to right
+    child->left()->setRight(child->right());
+    child->right()->setLeft(child->left());
+  }
+  child->setLeft(NULL);
+  child->setRight(NULL);
+  
+  // make child a child of parent, increment parent's degree
+  parent->insertChild(child);
+
+  // child.mark = false
+  child->setMarked(false);
+  
+}
+
+void FHeap::cut(Node *x){
+  //remove x from childList of y
+/*
+  if(y.childList() != &x){
+    y.setChildList(y.childList()->right());
+  }
+  y.childList()->setLeft(y.childList()->right());
+  y.childList()->setRight(y.childList()->left());
+*/
+  x->setLeft(x->right());
+  x->setRight(x->left());
+  x->parent()->setDegree(x->parent()->degree() - 1);
+  x->parent()->setNumChildren(x->parent()->numChildren() - 1);
+  x->setParent(NULL);
+  //y->setDegree(y->degree() - 1);
+  //y->setNumChildren(y->numChildren() -  1);
+  //add x to rootList of H(this) 
+  this->insertNode(x);
+  x->setParent(NULL);
+  x->setMarked(false);
+}
+
+void FHeap::cascadingCut(Node *y){
+ // Node n = y.parent();
+  if(y->parent() != NULL){
+    if(y->marked() == false){ 
+      y->setMarked(true); 
+    } else {
+      this->cut(y);
+      this->cascadingCut(y->parent());
+    } 
+  }
+}
+
+/***** public *****/
 void FHeap::insertVertex(Vertex v)
 { 
   Node *n = new Node(v);
@@ -241,6 +370,9 @@ void FHeap::insertNode(Node *n)
 
 }
 
+Node* FHeap::minimum(void){
+  return min;
+}
 
 Vertex FHeap::extractMin(void)
 {
@@ -276,87 +408,25 @@ Vertex FHeap::extractMin(void)
   }
   return Vertex();
 }
+
+void FHeap::decreaseKey(Vertex v, int k)
+{
+  Node *x = handles[v.id];
+  if(k > x->key())
+    {
+      std::cerr << "New key is greater than current key" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  x->setKey(k);
+  Node *y = x->parent();
+  if(y != NULL && x->key() < y->key())
+    {
+      x->cut(y);
+      x->cascadingCut(y);
+    }
+  if(x->key() < min->key())
+    {
+      min = x;  
+    }
+}
 	
-void FHeap::link(Node *child, Node *parent){
-  // remove child from the rootList
-  if(child->left() == child->right()){
-    // has 1 sibling, set sibling to point to itself
-    Node *sibling = child->left();n_left;
-    sibling->setRight(sibling);
-    sibling->setLeft(sibling);
-  }
-  else{
-    // has more than 1 sibling, set left to point to right
-    child->left()->setRight(child->right());
-    child->right()->setLeft(child->left());
-  }
-  child->setLeft(NULL);
-  child->setRight(NULL);
-  
-  // make child a child of parent, increment parent's degree
-  parent->insertChild(child);
-
-  // child.mark = false
-  child->setMarked(false);
-  
-}
-
-void FHeap::fibUnion(FHeap h2){
-  //concatenate h2.rootList to this.rootList
-  //if this.rootList is empty
-  if(this->rootList->right() != NULL && this->rootList->left() != NULL){
-    this->rootList->setRight(h2.rootList->right());
-    this->rootList->setLeft(h2.rootList->left());
-  //if h2.rootList is empty
-  } else if(h2.rootList->right() != NULL && h2.rootList->left() != NULL){
-    //do nothing
-  //if this and h2 are both non-empty, concatenate 
-  } else {
-    h2.rootList->left()->setRight(this->rootList->right());
-    this->rootList->right()->setLeft(h2.rootList->left());
-    h2.rootList->setLeft(this->rootList);
-    this->rootList->setRight(h2.rootList); 
-  }
-  if(this->min == NULL || (h2.min != NULL && h2.min->key() < this->min->key() )){
-    this->min = h2.min;
-  }
-  this->size += h2.size;
-}
-
-void FHeap::cut(Node *x){
-  //remove x from childList of y
-/*
-  if(y.childList() != &x){
-    y.setChildList(y.childList()->right());
-  }
-  y.childList()->setLeft(y.childList()->right());
-  y.childList()->setRight(y.childList()->left());
-*/
-  x->setLeft(x->right());
-  x->setRight(x->left());
-  x->parent()->setDegree(x->parent()->degree() - 1);
-  x->parent()->setNumChildren(x->parent()->numChildren() - 1);
-  x->setParent(NULL);
-  //y->setDegree(y->degree() - 1);
-  //y->setNumChildren(y->numChildren() -  1);
-  //add x to rootList of H(this) 
-  this->insertNode(x);
-  x->setParent(NULL);
-  x->setMarked(false);
-}
-
-void FHeap::cascadingCut(Node *y){
- // Node n = y.parent();
-  if(y->parent() != NULL){
-    if(y->marked() == false){ 
-      y->setMarked(true); 
-    } else {
-      this->cut(y);
-      this->cascadingCut(y->parent());
-    } 
-  }
-}
-
-Node* FHeap::minimum(){
-  return min;
-}
