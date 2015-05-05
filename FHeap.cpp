@@ -38,7 +38,7 @@ public:
     n_degree = n_numChildren = 0;
     n_marked = false;
     n_data = n_vertex = v;
-    n_key = n_vertex.key();
+    n_key = v.key();
   }
 
   Node& operator=(const Node &n){
@@ -121,13 +121,19 @@ public:
   }
   void setCLNULL(void){ n_childList = NULL; }
   void insertChild(Node *child){
-    Node *clLeft = n_childList->left();
-    child->setLeft(clLeft);
-    child->setRight(n_childList);
-    clLeft->setRight(child);
-    n_childList->setLeft(child);
+    if(n_childList != NULL){
+      Node *clLeft = n_childList->left();
+      child->setLeft(clLeft);
+      child->setRight(n_childList);
+      clLeft->setRight(child);
+      n_childList->setLeft(child);
+    }
+    else{
+      n_childList = child;
+    }
     n_degree++;
     n_numChildren++;
+      
   }
 
   ~Node(){
@@ -168,14 +174,30 @@ FHeap::FHeap(){
   size = 0;
   rootList = NULL;
   min = NULL;
+  capacity = 1;
+  std::vector<Node*> tmp (capacity, NULL);
+  handles = tmp;
+}
+
+FHeap::FHeap(int numVertices){
+  if(DEBUG) std::cerr << "Called FHeap::FHeap(int) [value constructor]" << std::endl;
+  size = 0;
+  rootList = NULL;
+  min = NULL;
+  capacity = numVertices;
+  std::vector<Node*> tmp (capacity, NULL);
+  handles = tmp;
 }
 
 FHeap::FHeap(Vertex v){
-  if(DEBUG) std::cerr << "Called FHeap::FHeap() [value constructor]" << std::endl;
+  if(DEBUG) std::cerr << "Called FHeap::FHeap(Vertex) [value constructor]" << std::endl;
   size = 1;
   Node *n = new Node(v);
   rootList = n;
   min = n;
+  capacity = 2;
+  std::vector<Node*> tmp (capacity, NULL);
+  handles = tmp;
 }
 
 FHeap::~FHeap(){
@@ -200,6 +222,7 @@ FHeap::~FHeap(){
   
 }
 
+/***** private *****/
 void FHeap::fibUnion(FHeap h2){
   //concatenate h2.rootList to this.rootList
   //if this.rootList is empty
@@ -222,55 +245,98 @@ void FHeap::fibUnion(FHeap h2){
   this->size += h2.size;
 }
 
-void FHeap::consolidate(void)
-{
-    double phi = 1.61803;
-    int magicNum = (int)std::floor(std::log10(size)/ std::log10(phi));
-    vector<Node*> array(magicNum, NULL);
-    for(int i = 0; i < rootList->size(); i++)
-    {
-	Node *x = rootList;
-        d = x.degree;
-	while(array[d] != NULL)
-	{
-          Node y = array[d]; 
-          if(x.key > y.key)
-	  {
-            SWAP(x,y);
-          }
-          heapLink(x,y);
-          array[d] = NULL;
-          d = d + 1;
-        }
-        array[d] = x;
+void FHeap::consolidate(void){
+  double phi = 1.61803;
+  int magicNum = (int)std::floor(std::log10(size)/std::log10(phi));
+  std::vector<Node*> array(magicNum, NULL);
+  // for each node w in the root list of H
+  Node *w = rootList;
+  for(int i = 0; i < size; i++){
+    Node *x = w;
+    w = w->right();
+    int d = x->degree();
+    while(array[d] != NULL){
+      Node *y = array[d]; // another node with the same degree as x
+      if(x->key() > y->key()){
+	// we want to make y the child of x
+	// but x has larger key, exchange x with y
+	Node *swap = x;
+	x = y;
+	y = swap;
+      }
+      link(y,x);
+      array[d] = NULL;
+      d = d + 1;
     }
-    min = NULL;
-    for(int i = 0; i < magicNum; i++)
-    {
-      if(array[i] != NULL)
-      {
-	if(min == NULL)
-        {
-	  rootList = new Tree(array[i]);
+    array[d] = x;    
+  }
+  min = NULL;
+  for(int i = 0; i < magicNum; i++){
+    if(array[i] != NULL){
+      if(min == NULL){
+	insertNode(array[i]);
+	min = array[i];
+      }
+      else{
+	insertNode(array[i]);
+	if(array[i]->key() < min->key()){
 	  min = array[i];
-	}
-	else
-	{
-	  rootList->insert(array[i]);
-	  if(array[i].key < min->key)
-	  {
-	    min = array[i];
-	  }
 	}
       }
     }
+  }
+}	  
+
+void FHeap::cut(Node *x){
+  if(x->parent() != NULL){
+    //remove x from childList of y
+    if(x->left() == x->right()){
+      // has 1 sibling, set sibling to point to itself
+      Node *sibling = x->left();
+      sibling->setRight(sibling);
+      sibling->setLeft(sibling);
+    }
+    else{
+      // has more than 1 sibling, set left to point to right
+      x->left()->setRight(x->right());
+      x->right()->setLeft(x->left());
+    }
+    x->setLeft(x);
+    x->setRight(x);
+    
+    // add x to root list of H
+    this->insertNode(x);
+    x->setParent(NULL);
+    x->setMarked(false);
+  }
+  else{
+    std::cerr << "FHeap: cut: x does not have a parent" << std::endl;
+  }
+}
+
+void FHeap::cascadingCut(Node *y){
+ // Node n = y.parent();
+  if(y->parent() != NULL){
+    if(y->marked() == false){ 
+      y->setMarked(true); 
+    } else {
+      Node *z = y->parent();
+      this->cut(y);
+      this->cascadingCut(z);
+    } 
+  }
+}
+
+void FHeap::deleteNode(Node *x){
+  decreaseKey(x->data().id(), std::numeric_limits<int>::min());
+  extractMin();
 }
 
 void FHeap::link(Node *child, Node *parent){
   // remove child from the rootList
   if(child->left() == child->right()){
     // has 1 sibling, set sibling to point to itself
-    Node *sibling = child->left();n_left;
+    Node *sibling = child->left();
     sibling->setRight(sibling);
     sibling->setLeft(sibling);
   }
@@ -279,8 +345,8 @@ void FHeap::link(Node *child, Node *parent){
     child->left()->setRight(child->right());
     child->right()->setLeft(child->left());
   }
-  child->setLeft(NULL);
-  child->setRight(NULL);
+  child->setLeft(child);
+  child->setRight(child);
   
   // make child a child of parent, increment parent's degree
   parent->insertChild(child);
@@ -290,44 +356,19 @@ void FHeap::link(Node *child, Node *parent){
   
 }
 
-void FHeap::cut(Node *x){
-  //remove x from childList of y
-/*
-  if(y.childList() != &x){
-    y.setChildList(y.childList()->right());
-  }
-  y.childList()->setLeft(y.childList()->right());
-  y.childList()->setRight(y.childList()->left());
-*/
-  x->setLeft(x->right());
-  x->setRight(x->left());
-  x->parent()->setDegree(x->parent()->degree() - 1);
-  x->parent()->setNumChildren(x->parent()->numChildren() - 1);
-  x->setParent(NULL);
-  //y->setDegree(y->degree() - 1);
-  //y->setNumChildren(y->numChildren() -  1);
-  //add x to rootList of H(this) 
-  this->insertNode(x);
-  x->setParent(NULL);
-  x->setMarked(false);
-}
-
-void FHeap::cascadingCut(Node *y){
- // Node n = y.parent();
-  if(y->parent() != NULL){
-    if(y->marked() == false){ 
-      y->setMarked(true); 
-    } else {
-      this->cut(y);
-      this->cascadingCut(y->parent());
-    } 
-  }
-}
-
 /***** public *****/
 void FHeap::insertVertex(Vertex v)
 { 
+  if(v.id() < 0){
+    std::cerr << "FHeap: insertVertex: Vertex with id " << v.id() << " cannot be inserted into FHeap" << std::endl;
+  }
+  if(v.id() >= capacity){
+    std::cerr << "FHeap: insertVertex: Vertex with id " << v.id() << " is larger than FHeap's capacity " << capacity << std::endl;
+    exit(EXIT_FAILURE);
+  }
   Node *n = new Node(v);
+  // update handles
+  handles[v.id()] = n;
   if(min == NULL)
     {
       rootList = n;
@@ -340,7 +381,6 @@ void FHeap::insertVertex(Vertex v)
     }
   
 }
-
 
 void FHeap::insertNode(Node *n)
 { 
@@ -379,7 +419,7 @@ Vertex FHeap::extractMin(void)
   Node *z = min;
   if(z != NULL)
     {
-      Node *cur = z.childList();
+      Node *cur = z->childList();
       for(int i = 0; i < z->degree(); i++)
 	{ 
 	  Node *tmp = cur->right();
@@ -399,7 +439,10 @@ Vertex FHeap::extractMin(void)
       }
       size = size - 1;
       Vertex v = z->data();
-      delete z;	    
+      delete z;
+      // update handles
+      handles[v.id()] = NULL;
+      if(DEBUG) std::cerr << "extractMin: vertex " << v.id() << std::endl;
       return v;
     }
   else{
@@ -409,9 +452,17 @@ Vertex FHeap::extractMin(void)
   return Vertex();
 }
 
-void FHeap::decreaseKey(Vertex v, int k)
+void FHeap::decreaseKey(int vertexID, int k)
 {
-  Node *x = handles[v.id];
+  if(vertexID >= capacity){
+    std::cerr << "FHeap: decreaseKey: Vertex with id " << vertexID << " not in FHeap!" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  Node *x = handles[vertexID];
+  if(x == NULL){
+    std::cerr << "FHeap: decreaseKey: Vertex with id " << vertexID << " not in FHeap!" << std::endl;
+    exit(EXIT_FAILURE);
+  }
   if(k > x->key())
     {
       std::cerr << "New key is greater than current key" << std::endl;
@@ -421,8 +472,8 @@ void FHeap::decreaseKey(Vertex v, int k)
   Node *y = x->parent();
   if(y != NULL && x->key() < y->key())
     {
-      x->cut(y);
-      x->cascadingCut(y);
+      cut(x);
+      cascadingCut(y);
     }
   if(x->key() < min->key())
     {
@@ -430,3 +481,39 @@ void FHeap::decreaseKey(Vertex v, int k)
     }
 }
 	
+/*** for Fib in MST ***/
+bool FHeap::empty(void){
+  return min == NULL;
+}
+
+bool FHeap::contains(int vertexID){
+  if(vertexID < capacity)
+    return handles[vertexID] != NULL;
+  else
+    return false;
+}
+
+int FHeap::getKey(int vertexID){
+  if(DEBUG) std::cerr << "getKey: vertex " << vertexID << std::endl;
+  if(contains(vertexID)){
+    if(DEBUG) {
+      showHandles();
+      if(handles[vertexID] == NULL)
+	std::cerr << "getKey: handles[" << vertexID << "] == NULL" << std::endl;
+    }
+    return handles[vertexID]->key();
+  }
+  else{
+    std::cerr << "FHeap: getKey: Vertex " << vertexID << " does not exist in FHeap" << std::endl;
+    exit(EXIT_FAILURE);
+    return -1;
+  }
+}
+
+void FHeap::showHandles(void){
+  if(DEBUG){
+    for(int i = 0; i < capacity; i++){
+      std::cerr << i << ": " << handles[i] << std::endl;
+    }
+  }
+}

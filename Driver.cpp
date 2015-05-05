@@ -6,7 +6,7 @@
 #include "MST.h"
 #include "Timer.h"
 
-#define DEBUG 0 // 1 to turn debug on
+#define DEBUG 1 // 1 to turn debug on
 
 void usage(char *progName){
   std::cerr << "usage: " << progName << " <input-file> <output-file>" << std::endl;
@@ -69,14 +69,13 @@ int main(int argc, char **argv){
     prim_timer.start();
     Prim(graph, prim_mst);
     prim_timer.end();
-    /*
+    
     Graph fib_mst(nVertices);
     Timer fib_timer;
     fib_timer.start();
     int fib_last_id = Fib(graph, fib_mst);
     fib_timer.end();
-    */
-
+    
     // report timings
     fout << "Graph " << i+1 << ": " << nVertices << " vertices, " << nEdges << " edges" << std::endl;
     
@@ -97,15 +96,13 @@ int main(int argc, char **argv){
     }
     
     fout << "Fib Heap: " << 0.0 << std::endl;
-    //fib_timer.printElapsedSeconds(fout);
+    fib_timer.printElapsedSeconds(fout);
     //fib_mst.printEdges(fout);
-    /*
     if(DEBUG){
       std::cerr << "Fib MST:" << std::endl;
       extractMST(fib_mst, fib_last_id);
       fib_mst.showEdges();
       }
-    */
 
   }
   

@@ -1,6 +1,6 @@
 #include "MST.h"
 
-#define DEBUG 0 // 1 to turn debug on
+#define DEBUG 1 // 1 to turn debug on
 
 bool keyComp(Vertex v1, Vertex v2)
 {
@@ -98,23 +98,22 @@ Graph Kruskal(Graph g, Graph &mst){
   return mst;
 }
 
-/*
 int Fib(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Fib(Graph, Graph&)" << std::endl;
   // copy g into mst, and work build the MST inside of mst
   mst = g;
 
-  FHeap Q; // Q = emptyset
+  FHeap Q(g.numVertices()); // Q = emptyset
 
   // fixed initial starting vertex: first vertex in G.V
   Vertex r = mst.vertex(0);
   r.setKey(0);
-  Q.insert(r);
+  Q.insertVertex(r);
 
   // insert vertices into Q
   for(int i = 1; i < mst.numVertices(); i++){
     mst.vertex(i).setKey(std::numeric_limits<int>::max());
-    Q.insert(mst.vertex(i));
+    Q.insertVertex(mst.vertex(i));
   }
   
   Vertex u;
@@ -129,7 +128,8 @@ int Fib(Graph g, Graph &mst){
     std::vector<Neighbor> adj_u = mst.adj(u_id);
     for(std::vector<Neighbor>::iterator it = adj_u.begin(); it != adj_u.end(); it++){
       int neighborID = it->first;
-      int neighborKey = mst.vertex(neighborID).key();
+      //int neighborKey = mst.vertex(neighborID).key();
+      int neighborKey = Q.getKey(neighborID);
       int weight = it->second;
       if(DEBUG) std::cout << " Adjacent vertex = " << neighborID << std::endl;      
       if( Q.contains(neighborID) && (weight < neighborKey) ){ //!!! Q.contains() needs to be implemented; could use g to track inside by using g.vertex().setKey(-1) trick?
@@ -143,7 +143,7 @@ int Fib(Graph g, Graph &mst){
   // return id of last vertex for tracing out the MST in mst
   return u_id;
 
-}*/
+}
 
 void extractMST(Graph &mst, int lastID){
   if(DEBUG) std::cerr << "Called extractMST(Graph, int)" << std::endl;
