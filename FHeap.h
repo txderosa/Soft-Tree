@@ -2,39 +2,34 @@
 #define FHEAP_H
 
 #include <iostream>
-
 #include "Vertex.cpp"
 
 class Node;
-//class Tree;
 
 class FHeap{
 
  private:
   int size;
-  //Tree *rootList;
   Node *rootList;
   Node *min;
-
-  fibUnion();
-  consolidate();
-  cut();
-  cascadingCut();
-  delete();
+  
+  void fibUnion(FHeap h2);//Tom
+  //  consolidate();//Toren
+  void cut(Node *x);//Tom
+  void cascadingCut(Node *n);//Tom
+  // delete();//Toren
   void link(Node *child, Node *parent);
 
  public:
   FHeap();
   FHeap(Vertex v);
 
-  void insertVertex(Vertex v);
-  void insertNode(Node *n);
-  minimum();
+  void insertVertex(Vertex v);//toren
+  void insertNode(Node *n);//toren
+  Node* minimum();//tom
   Vertex extractMin(void);
   decreaseKey();
-
-  ~FHeap();
-
+ 
 }; // end of class FHeap
 
 #endif

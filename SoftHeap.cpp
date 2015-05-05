@@ -6,7 +6,9 @@ Sheap::INFINITY = std::numeric_limits<int>::max();
   * make sure node.listSize incremements correctly and node.size is set correctly
   * check that concatenate in sift() works correctly
   * implement pickElement() in extractMin()
-  * = operator for Tree
+  * change to OO style
+    * don't pass in &q, instead q.function()
+  * =operator for Queue?
 */
 
 

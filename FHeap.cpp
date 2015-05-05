@@ -2,7 +2,6 @@
 
 #define DEBUG 1 // 1 to turn debug on for FHeap
 #define N_DEBUG 1 // 1 to turn debug on for Node
-//#define T_DEBUG 1 // 1 to turn debug on for Tree
 
 class Node {
   // each node contains a pointer to its parent and to any one of its children
@@ -159,92 +158,6 @@ public:
   
 }; // end of class Node
 
-/*
-class Tree {
-  // a tree in a soft heap has min-heap property with respect to a node's ckey value (ie, if x is a node and x.left exists, then x.ckey <= x.left.ckey; if x.right exists, then x.ckey <= x.right.ckey)
-private:
-  int t_rank;
-  Node *t_root;
-  Tree *t_next;
-  Tree *t_prev;
-  Tree *t_sufmin;
-  
-public:
-  Tree(){
-    if(T_DEBUG) std::cerr << "Called Tree::Tree() [default constructor]" << std::endl;
-    t_rank = 0;
-    t_root = NULL;
-    t_next = NULL;
-    t_prev = NULL;
-    t_sufmin = NULL;
-  }
-
-  Tree(Vertex v){
-    if(T_DEBUG) std::cerr << "Called Tree::Tree(Vertex) [value constructor]" << std::endl;
-    t_rank = 0;
-    t_root = new Node(v);
-    t_next = NULL;
-    t_prev = NULL;
-    t_sufmin = this;
-  }
-
-  Tree& operator=(const Tree &t){
-    if(T_DEBUG) std::cerr << "Called Tree::operator=(const Tree&) [assignment operator]" << std::endl;
-    // check for self-assignment, only copy if different objects
-    if(this != &t){
-      t_rank = t.t_rank;
-      setNext(t.t_next);
-      setPrev(t.t_prev);
-      setSufmin(t.t_sufmin);
-    }
-    return *this;
-  }
-
-  int rank(void) const{ return t_rank; }
-
-  Node *root(void){ return t_root; }
-  void setRoot(Node *r){
-    // release our resources
-    if(t_root != NULL) delete t_root;
-    // acquire new resources
-    t_root = r;
-  }
-  
-  Tree *next(void){ return t_next; }
-  void setNext(Tree *n){
-    // release our resources
-    if(t_next != NULL) delete t_next;
-    // acquire new resources
-    t_next = n;    
-  }
-
-  Tree *prev(void){ return t_prev; }
-  void setPrev(Tree *p){
-    // release our resources
-    if(t_prev != NULL) delete t_prev;
-    // acquire new resources
-    t_prev = p;
-  }
-
-  Tree *sufmin(void){ return t_sufmin; }
-  void setSufmin(Tree *s){
-    // release our resources
-    if(t_sufmin != NULL) delete t_sufmin;
-    // acquire new resources
-    t_sufmin = s;
-  }
-
-  ~Tree(){
-    if(T_DEBUG) std::cerr << "Called Tree::~Tree() [destructor]" << std::endl;
-    // clean up resources
-    if(t_root != NULL) delete t_root; // delete all nodes in tree
-    if(t_next != NULL) t_next = NULL;
-    if(t_prev != NULL) t_prev = NULL;
-    if(t_sufmin != NULL) t_sufmin = NULL;
-  }
-}; // end of class Tree
-*/
-
 /***** START OF FHEAP *****/
 FHeap::FHeap(){
   if(DEBUG) std::cerr << "Called FHeap::FHeap() [default constructor]" << std::endl;
@@ -302,19 +215,30 @@ void FHeap::insertVertex(Vertex v)
 
 void FHeap::insertNode(Node *n)
 { 
-  // assumes heap is not empty
-  // insert n into rootList, new node is added to left of root
-  Node *rootLeft = rootList->left();
-  n->setLeft(rootLeft);
-  n->setRight(rootList);
-  rootLeft->setRight(n);
-  rootList->setLeft(n);
-  if(n->key() < min->key())
-    {
-      min = n;
-    }
-  size = size + 1;
-  
+  if(min == NULL){
+    // create root list for H containing just n
+    n->setDegree(0);
+    n->setParent(NULL);
+    n->setChildList(NULL);
+    n->setMarked(false);
+    rootList = n;
+    min = n;
+  }
+  else {
+    // heap is not empty
+    // insert n into rootList, new node is added to left of root
+    Node *rootLeft = rootList->left();
+    n->setLeft(rootLeft);
+    n->setRight(rootList);
+    rootLeft->setRight(n);
+    rootList->setLeft(n);
+    if(n->key() < min->key())
+      {
+	min = n;
+      }
+    size = size + 1;
+  }
+
 }
 
 
@@ -377,3 +301,62 @@ void FHeap::link(Node *child, Node *parent){
   
 }
 
+void FHeap::fibUnion(FHeap h2){
+  //concatenate h2.rootList to this.rootList
+  //if this.rootList is empty
+  if(this->rootList->right() != NULL && this->rootList->left() != NULL){
+    this->rootList->setRight(h2.rootList->right());
+    this->rootList->setLeft(h2.rootList->left());
+  //if h2.rootList is empty
+  } else if(h2.rootList->right() != NULL && h2.rootList->left() != NULL){
+    //do nothing
+  //if this and h2 are both non-empty, concatenate 
+  } else {
+    h2.rootList->left()->setRight(this->rootList->right());
+    this->rootList->right()->setLeft(h2.rootList->left());
+    h2.rootList->setLeft(this->rootList);
+    this->rootList->setRight(h2.rootList); 
+  }
+  if(this->min == NULL || (h2.min != NULL && h2.min->key() < this->min->key() )){
+    this->min = h2.min;
+  }
+  this->size += h2.size;
+}
+
+void FHeap::cut(Node *x){
+  //remove x from childList of y
+/*
+  if(y.childList() != &x){
+    y.setChildList(y.childList()->right());
+  }
+  y.childList()->setLeft(y.childList()->right());
+  y.childList()->setRight(y.childList()->left());
+*/
+  x->setLeft(x->right());
+  x->setRight(x->left());
+  x->parent()->setDegree(x->parent()->degree() - 1);
+  x->parent()->setNumChildren(x->parent()->numChildren() - 1);
+  x->setParent(NULL);
+  //y->setDegree(y->degree() - 1);
+  //y->setNumChildren(y->numChildren() -  1);
+  //add x to rootList of H(this) 
+  this->insertNode(x);
+  x->setParent(NULL);
+  x->setMarked(false);
+}
+
+void FHeap::cascadingCut(Node *y){
+ // Node n = y.parent();
+  if(y->parent() != NULL){
+    if(y->marked() == false){ 
+      y->setMarked(true); 
+    } else {
+      this->cut(y);
+      this->cascadingCut(y->parent());
+    } 
+  }
+}
+
+Node* FHeap::minimum(){
+  return min;
+}

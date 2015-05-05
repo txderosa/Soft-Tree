@@ -2,7 +2,6 @@
 #define _SOFTHEAP_H_
 
 #include <limits>
-
 #include "SoftHeapUtil.cpp"
 
 class Sheap{
