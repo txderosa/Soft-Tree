@@ -73,7 +73,7 @@ int main(int argc, char **argv){
     Graph fib_mst(nVertices);
     Timer fib_timer;
     fib_timer.start();
-    int fib_last_id = Fib(graph, fib_mst);
+    Fib(graph, fib_mst);
     fib_timer.end();
     
     // report timings
@@ -95,14 +95,14 @@ int main(int argc, char **argv){
       prim_mst.showEdges();
     }
     
-    fout << "Fib Heap: " << 0.0 << std::endl;
+    fout << "Fib Heap: ";
     fib_timer.printElapsedSeconds(fout);
     //fib_mst.printEdges(fout);
     if(DEBUG){
       std::cerr << "Fib MST:" << std::endl;
-      extractMST(fib_mst, fib_last_id);
+      extractMST(fib_mst);
       fib_mst.showEdges();
-      }
+    }
 
   }
   

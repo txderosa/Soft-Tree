@@ -11,7 +11,7 @@ bool keyComp(Vertex v1, Vertex v2)
   return false;
 }
 
-Graph Prim(Graph g, Graph &mst){
+void Prim(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Prim(Graph, Graph&)" << std::endl;
   std::vector<Vertex> Q;
   //Vertex r = g.vertex(0);
@@ -58,7 +58,6 @@ Graph Prim(Graph g, Graph &mst){
     }
   }
   */
-  return mst;
 }
 
 // comp func to sort edges by weight
@@ -66,7 +65,7 @@ bool sortEdgesByWeight(Edge a, Edge b){
   return (a.weight() < b.weight());
 }
 
-Graph Kruskal(Graph g, Graph &mst){
+void Kruskal(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Kruskal(Graph, Graph&)" << std::endl;
   
   int nVertices = g.numVertices();
@@ -95,10 +94,9 @@ Graph Kruskal(Graph g, Graph &mst){
     }
   }
 
-  return mst;
 }
 
-int Fib(Graph g, Graph &mst){
+void Fib(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Fib(Graph, Graph&)" << std::endl;
   // copy g into mst, and work build the MST inside of mst
   mst = g;
@@ -106,8 +104,8 @@ int Fib(Graph g, Graph &mst){
   FHeap Q(g.numVertices()); // Q = emptyset
 
   // fixed initial starting vertex: first vertex in G.V
+  mst.vertex(0).setKey(0);
   Vertex r = mst.vertex(0);
-  r.setKey(0);
   Q.insertVertex(r);
 
   // insert vertices into Q
@@ -115,6 +113,8 @@ int Fib(Graph g, Graph &mst){
     mst.vertex(i).setKey(std::numeric_limits<int>::max());
     Q.insertVertex(mst.vertex(i));
   }
+
+  Q.showHandles();
   
   Vertex u;
   int u_id;
@@ -129,35 +129,41 @@ int Fib(Graph g, Graph &mst){
     for(std::vector<Neighbor>::iterator it = adj_u.begin(); it != adj_u.end(); it++){
       int neighborID = it->first;
       //int neighborKey = mst.vertex(neighborID).key();
-      int neighborKey = Q.getKey(neighborID);
+      int neighborKey;
+      if(Q.contains(neighborID))
+	neighborKey = Q.getKey(neighborID);
+      else
+	continue;
       int weight = it->second;
       if(DEBUG) std::cout << " Adjacent vertex = " << neighborID << std::endl;      
       if( Q.contains(neighborID) && (weight < neighborKey) ){ //!!! Q.contains() needs to be implemented; could use g to track inside by using g.vertex().setKey(-1) trick?
 	mst.vertex(neighborID).setParent(u_id);
 	Q.decreaseKey(neighborID, weight); //!!! Q.decreaseKey needs to be implemented
+	mst.vertex(neighborID).setKey(weight);
       }
     }
     
   } // end of algorithm
 
-  // return id of last vertex for tracing out the MST in mst
-  return u_id;
-
 }
 
-void extractMST(Graph &mst, int lastID){
+void extractMST(Graph &mst){
   if(DEBUG) std::cerr << "Called extractMST(Graph, int)" << std::endl;
   int nVertices = mst.numVertices();
   Graph tmp(nVertices);
-  int v_id = lastID;
   int u_id, weight;
   // build MST from parent info in mst
-  for(int i = 0; i < nVertices-1; i++){
-    u_id = mst.vertex(v_id).parent();
-    weight = mst.vertex(v_id).key();
-    Edge e(u_id, v_id, weight);
-    tmp.insertEdge(e);
-    v_id = u_id;
+  for(int i = 0; i < nVertices; i++){
+    u_id = mst.vertex(i).parent();
+    if(u_id > -1){
+      if(DEBUG){
+	std::cerr << "v_id: " << i << std::endl;
+	std::cerr << "u_id: " << u_id << std::endl;
+      }
+      weight = mst.vertex(i).key();
+      Edge e(u_id, i, weight);
+      tmp.insertEdge(e);
+    }
   }
   // replace the graph with the MST
   mst = tmp;

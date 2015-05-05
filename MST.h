@@ -9,12 +9,12 @@
 #include "DisjointComps.h" // for Kruskal
 #include "FHeap.h" // for Fib
 
-Graph Prim(Graph g, Graph &mst);
+void Prim(Graph g, Graph &mst);
 
-Graph Kruskal(Graph g, Graph &mst);
+void Kruskal(Graph g, Graph &mst);
 
-int Fib(Graph g, Graph &mst);
+void Fib(Graph g, Graph &mst);
 
-void extractMST(Graph &mst, int lastID);
+void extractMST(Graph &mst);
 
 #endif

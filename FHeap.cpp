@@ -119,29 +119,75 @@ public:
     // acquire new children
     n_childList = cl;
   }
-  void setCLNULL(void){ n_childList = NULL; }
   void insertChild(Node *child){
+    child->setParent(this);
     if(n_childList != NULL){
       Node *clLeft = n_childList->left();
       child->setLeft(clLeft);
       child->setRight(n_childList);
       clLeft->setRight(child);
       n_childList->setLeft(child);
+      n_degree++;
+      n_numChildren++;
     }
     else{
       n_childList = child;
+      n_degree = 1;
+      n_numChildren = 1;
     }
-    n_degree++;
-    n_numChildren++;
       
+  }
+
+  void removeFromRootList(void){
+    if(DEBUG) std::cerr << "Called removeFromRootList(void)" << std::endl;
+    // has siblings, adjust their pointers
+    if( (n_left == this) && (n_right == this) ){
+      // only child
+      //n_left = NULL;
+      //n_right = NULL;
+    }
+    else{
+      if(n_left == n_right){
+	// has 1 sibling, set sibling to point to itself
+	Node *sibling = n_left;
+	if(DEBUG){
+	  std::cerr << "remove: me=" << this << " " << n_vertex.id() << std::endl;
+	  std::cerr << "remove: sibling=" << sibling << std::endl;
+	  std::cerr << "remove: sibling_right=" << sibling->n_right << std::endl;
+	}
+	sibling->n_right = sibling;
+	sibling->n_left = sibling;
+      }
+      else{
+	// has more than 1 sibling, set left to point to right
+	if(DEBUG){
+	  std::cerr << "remove: me=" << this << " " << n_vertex.id() << std::endl;
+	  std::cerr << "remove: sibling_onleft=" << n_left << std::endl;
+	  std::cerr << "remove: sibling_onright=" << n_right << std::endl;
+	}
+	n_left->n_right = n_right;
+	n_right->n_left = n_left;
+      }
+    }
+  }
+
+  
+  void setPCLNULL(void){
+    n_parent = NULL;
+    n_childList = NULL;
+  }
+
+  void setSiblingsNULL(void){
+    n_left = NULL;
+    n_right = NULL;
   }
 
   ~Node(){
     if(N_DEBUG) std::cerr << "Called Node::~Node() [destructor]" << std::endl;
     // clean up resources
     if(n_parent != NULL) n_parent = NULL;
-    if(n_childList != NULL) setChildList(NULL);
-
+    if(DEBUG) std::cerr << "~Node: childList: " << n_childList << std::endl;
+    if(n_childList != NULL){ setChildList(NULL); }
     if( (n_left == this) && (n_right == this) ){
       // only child
       n_left = NULL;
@@ -246,16 +292,31 @@ void FHeap::fibUnion(FHeap h2){
 }
 
 void FHeap::consolidate(void){
+  if(DEBUG) std::cerr << "Called FHeap::consolidate(void)" << std::endl;
   double phi = 1.61803;
   int magicNum = (int)std::floor(std::log10(size)/std::log10(phi));
-  std::vector<Node*> array(magicNum, NULL);
+  if(DEBUG) std::cerr << "consolidate: magicNum: " << magicNum << std::endl;
+  if(magicNum < 0) magicNum = 0;
+  std::vector<Node*> array(magicNum+1, NULL);
+  /*
+  for(int i = 0; i < magicNum; i++){
+    array[i] = NULL;
+  }
+  */
   // for each node w in the root list of H
+  std::cerr << "consolidate: rootList=" << rootList << std::endl;
+  std::cerr << "consolidate: size=" << size << std::endl;
   Node *w = rootList;
   for(int i = 0; i < size; i++){
     Node *x = w;
+    std::cerr << "consolidate: x=" << x << std::endl;
     w = w->right();
     int d = x->degree();
-    while(array[d] != NULL){
+    if(DEBUG) {
+      std::cerr << "consolidate: d=" << d << std::endl;
+      if(d >= magicNum) std::cerr << "d >= magicNum" << std::endl;
+    } 
+    while(d <= magicNum && array[d] != NULL){
       Node *y = array[d]; // another node with the same degree as x
       if(x->key() > y->key()){
 	// we want to make y the child of x
@@ -268,11 +329,25 @@ void FHeap::consolidate(void){
       array[d] = NULL;
       d = d + 1;
     }
-    array[d] = x;    
+    if(d <= magicNum){
+      std::cerr << "set array["<<d<<"]=" <<x->data().id()<< std::endl;
+      array[d] = x;    
+    }
   }
+  // clear out H
+  /*
+  Node cleaner;
+  cleaner.setChildList(min);
+  cleaner.setChildList(NULL);
+  */
+  rootList = NULL;
+  // build new FHeap
   min = NULL;
-  for(int i = 0; i < magicNum; i++){
+  for(int i = 0; i <= magicNum; i++){
     if(array[i] != NULL){
+      std::cerr << "inserting " << array[i] << std::endl;
+      insertNode(array[i]);
+      /*
       if(min == NULL){
 	insertNode(array[i]);
 	min = array[i];
@@ -283,11 +358,21 @@ void FHeap::consolidate(void){
 	  min = array[i];
 	}
       }
+      */
     }
   }
-}	  
+  
+  
+  if(DEBUG){
+    std::cerr << "End of consolidate: min="<<min;
+    if(min != NULL) std::cerr <<" min.right="<<min->right();
+    std::cerr<<std::endl;
+  }
+
+}
 
 void FHeap::cut(Node *x){
+  if(DEBUG) std::cerr << "Called FHeap::cut(Node*)" << std::endl;
   if(x->parent() != NULL){
     //remove x from childList of y
     if(x->left() == x->right()){
@@ -304,8 +389,12 @@ void FHeap::cut(Node *x){
     x->setLeft(x);
     x->setRight(x);
     
+    // decrement y.degree
+    int parentD = x->parent()->degree();
+    x->parent()->setDegree(parentD-1);
+
     // add x to root list of H
-    this->insertNode(x);
+    insertNode(x);
     x->setParent(NULL);
     x->setMarked(false);
   }
@@ -333,21 +422,28 @@ void FHeap::deleteNode(Node *x){
 }
 
 void FHeap::link(Node *child, Node *parent){
-  // remove child from the rootList
-  if(child->left() == child->right()){
-    // has 1 sibling, set sibling to point to itself
-    Node *sibling = child->left();
-    sibling->setRight(sibling);
-    sibling->setLeft(sibling);
-  }
+  // remove child from rootList
+  if( (child->left() == child) && (child->right() == child) ){
+      // only child
+      //n_left = NULL;
+      //n_right = NULL;
+    }
   else{
-    // has more than 1 sibling, set left to point to right
-    child->left()->setRight(child->right());
-    child->right()->setLeft(child->left());
+    if(child->left() == child->right()){
+      // has 1 sibling, set sibling to point to itself
+      Node *sibling = child->left();
+      sibling->setRight(sibling);
+      sibling->setLeft(sibling);
+    }
+    else{
+      // has more than 1 sibling, set left to point to right
+      child->left()->setRight(child->right());
+      child->right()->setLeft(child->left());
+    }
+    child->setLeft(child);
+    child->setRight(child);
   }
-  child->setLeft(child);
-  child->setRight(child);
-  
+
   // make child a child of parent, increment parent's degree
   parent->insertChild(child);
 
@@ -384,29 +480,42 @@ void FHeap::insertVertex(Vertex v)
 
 void FHeap::insertNode(Node *n)
 { 
-  if(min == NULL){
+  if(n->data().id() >= capacity){
+    exit(EXIT_FAILURE);
+  }
+  if(min == NULL){// || rootList == NULL){
     // create root list for H containing just n
-    n->setDegree(0);
-    n->setParent(NULL);
-    n->setChildList(NULL);
-    n->setMarked(false);
     rootList = n;
     min = n;
+    std::cerr << "update min" << std::endl;
+    size = 1;
   }
   else {
     // heap is not empty
     // insert n into rootList, new node is added to left of root
+    if(DEBUG) {
+      std::cerr << "insertNode: rootList=" << rootList;
+      if(rootList != NULL) std::cerr<< " rootLeft=" << rootList->left();
+      std::cerr <<  std::endl;
+    }
     Node *rootLeft = rootList->left();
     n->setLeft(rootLeft);
     n->setRight(rootList);
     rootLeft->setRight(n);
     rootList->setLeft(n);
-    if(n->key() < min->key())
-      {
-	min = n;
-      }
-    size = size + 1;
+    size = size + 1;   
   }
+  
+  if(DEBUG) std::cerr << "insertNode: rootList=" << rootList << " rootLeft=" << rootList->left() <<  std::endl;
+  
+  if(n->key() < min->key())
+    {
+      min = n;
+      std::cerr << "update min" << std::endl;
+    }
+  
+  // update handles
+  handles[n->data().id()] = n;
 
 }
 
@@ -416,31 +525,58 @@ Node* FHeap::minimum(void){
 
 Vertex FHeap::extractMin(void)
 {
+  if(DEBUG) std::cerr << "Called FHeap::extractMin(void)" << std::endl;
   Node *z = min;
+  std::cerr << "min=" << min << std::endl;
   if(z != NULL)
     {
+      if(z->right() == z){
+	// z is only node in rootList
+	std::cerr << "z.right=" << z->right() << " z=" << z << std::endl;
+	rootList = NULL;
+	std::cerr << "extractMin: rootList=" << rootList << std::endl;
+	size = 0;
+      }
+      else{
+	if(z == rootList)
+	  rootList = rootList->right();
+	std::cerr << "extractMin: rootList=" << rootList << std::endl;
+	z->removeFromRootList();
+	size--;
+	std::cerr << "extractMin: size=" << size << std::endl;
+      }
+      // add children to rootList
       Node *cur = z->childList();
+      if(DEBUG) std::cerr << "z.degree=" << z->degree() << std::endl;
       for(int i = 0; i < z->degree(); i++)
 	{ 
+	  if(DEBUG) std::cerr << "z.degree="<<z->degree()<<" "<<cur << std::endl;
+	  if(cur == NULL) break;
 	  Node *tmp = cur->right();
 	  cur->setParent(NULL);
 	  insertNode(cur);
 	  cur = tmp;
+	  if(tmp == NULL) break;
 	}
-      z->setCLNULL();
+      z->setPCLNULL();
+      /*
       if(z->right() == z)
-      {
-	min = NULL;
-      }
+	{
+	  if(DEBUG) std::cerr << "extractMin: min is only node in FHeap" << std::endl; 
+	  min = NULL;
+	}
       else
-      {
-	min = z->right();
-	consolidate();
-      }
-      size = size - 1;
+	{
+	  min = z->right();
+	  consolidate();
+	  }
+      */
+      consolidate();
       Vertex v = z->data();
-      delete z;
+      if(DEBUG) std::cerr << "extractMin: z.childList " << z->childList() << std::endl;
       // update handles
+      z->setSiblingsNULL();
+      //delete z;
       handles[v.id()] = NULL;
       if(DEBUG) std::cerr << "extractMin: vertex " << v.id() << std::endl;
       return v;
@@ -454,6 +590,8 @@ Vertex FHeap::extractMin(void)
 
 void FHeap::decreaseKey(int vertexID, int k)
 {
+  if(DEBUG) std::cerr << "Called FHeap::decreaseKey(int,int)" << std::endl;
+  if(DEBUG) std::cerr << "decKey of vertex " << vertexID << std::endl; 
   if(vertexID >= capacity){
     std::cerr << "FHeap: decreaseKey: Vertex with id " << vertexID << " not in FHeap!" << std::endl;
     exit(EXIT_FAILURE);
@@ -475,10 +613,18 @@ void FHeap::decreaseKey(int vertexID, int k)
       cut(x);
       cascadingCut(y);
     }
+  /*
+  if(min == NULL){
+    std::cerr << "decreaseKey: min is NULL" << std::endl;
+    return;
+  } 
+  */ 
   if(x->key() < min->key())
     {
       min = x;  
+      if(DEBUG) std::cerr << "decKey: set min="<<min<<std::endl;
     }
+  showHandles();
 }
 	
 /*** for Fib in MST ***/
