@@ -119,6 +119,9 @@ public:
     // acquire new children
     n_childList = cl;
   }
+  void shiftCL(void){
+    n_childList = n_childList->right();
+  }
   void insertChild(Node *child){
     child->setParent(this);
     if(n_childList != NULL){
@@ -172,12 +175,13 @@ public:
     }
   }
 
-  
-  void setPCLNULL(void){
-    n_parent = NULL;
+  void setCLNULL(void){
     n_childList = NULL;
   }
-
+  void setPCLNULL(void){
+    n_parent = NULL;
+    setCLNULL();
+  }
   void setSiblingsNULL(void){
     n_left = NULL;
     n_right = NULL;
@@ -310,7 +314,7 @@ void FHeap::consolidate(void){
   Node *w = rootList;
   for(int i = 0; i < size; i++){
     Node *x = w;
-    std::cerr << "consolidate: x=" << x << std::endl;
+    std::cerr << "consolidate: x=" << x << " right=" << w->right() << std::endl;
     w = w->right();
     int d = x->degree();
     if(DEBUG) {
@@ -325,6 +329,11 @@ void FHeap::consolidate(void){
 	Node *swap = x;
 	x = y;
 	y = swap;
+      }
+      // make sure rootList does not point to child y 
+      if(y == rootList){
+	// shift rootList over
+	rootList = rootList->right();
       }
       link(y,x);
       array[d] = NULL;
@@ -381,6 +390,14 @@ void FHeap::cut(Node *x){
   if(DEBUG) std::cerr << "Called FHeap::cut(Node*)" << std::endl;
   if(x->parent() != NULL){
     //remove x from childList of y
+    if( (x->left() == x) && (x->right() == x) ){
+      // only child, so parent's childList = x
+      x->setCLNULL();
+    }
+    else if(x == x->parent()->childList()){
+      // has siblings, update parent's childList pointer, because the current one will be invalid soon
+      x->parent()->shiftCL();
+    }
     if(x->left() == x->right()){
       // has 1 sibling, set sibling to point to itself
       Node *sibling = x->left();
@@ -394,7 +411,7 @@ void FHeap::cut(Node *x){
     }
     x->setLeft(x);
     x->setRight(x);
-    
+
     // decrement y.degree
     int parentD = x->parent()->degree();
     x->parent()->setDegree(parentD-1);
@@ -410,8 +427,10 @@ void FHeap::cut(Node *x){
 }
 
 void FHeap::cascadingCut(Node *y){
+  if(DEBUG) std::cerr << "Called cascadingCut(Node*)" << std::endl;
  // Node n = y.parent();
   if(y->parent() != NULL){
+    if(DEBUG) std::cerr << "cascade cutting..." << std::endl;
     if(y->marked() == false){ 
       y->setMarked(true); 
     } else {
@@ -493,7 +512,7 @@ void FHeap::insertNode(Node *n)
     // create root list for H containing just n
     rootList = n;
     min = n;
-    std::cerr << "insertNode: update min=" << n << std::endl;
+    std::cerr << "insertNode: update min=" << min << std::endl;
     size = 1;
   }
   else {
@@ -525,7 +544,7 @@ void FHeap::insertNode(Node *n)
   if(n->key() < min->key())
     {
       min = n;
-      std::cerr << "insertNode: update min" << std::endl;
+      std::cerr << "insertNode: update min=" << min << std::endl;
     }
   
   // update handles
@@ -558,7 +577,12 @@ Vertex FHeap::extractMin(void)
 	  rootList = rootList->right();
 	  std::cerr << "\tafter: " << rootList << " " << rootList->right() << std::endl;
 	}
-	std::cerr << "extractMin: rootList=" << rootList << std::endl;
+	std::cerr << "extractMin: rootList=" << rootList;
+	if(rootList != NULL){
+	  std::cerr << " left=" << rootList->left() << " right=" << rootList->right();
+	  std::cerr << std::endl << "left->left->right=" << rootList->left()->left()->right();
+	}
+	std::cerr << std::endl;
 	z->removeFromSiblings();
 	size--;
 	std::cerr << "extractMin: size after extract=" << size << std::endl;
