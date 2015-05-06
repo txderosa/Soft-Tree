@@ -301,8 +301,11 @@ void FHeap::consolidate(void){
   if(DEBUG) std::cerr << "Called FHeap::consolidate(void)" << std::endl;
   double phi = 1.61803;
   int magicNum = (int)std::floor(std::log10(size)/std::log10(phi));
-  if(DEBUG) std::cerr << "consolidate: magicNum: " << magicNum << std::endl;
+	int max_degree = static_cast<int>(floor(log(static_cast<double>(size))/log(static_cast<double>(1 + sqrt(static_cast<double>(5)))/2)));
+	magicNum += 2;
   if(magicNum < 0) magicNum = 0;
+  if(DEBUG) std::cerr << "consolidate: magicNum: " << magicNum << std::endl;
+  if(DEBUG) std::cerr << "consolidate: max_degree: " << max_degree << std::endl;
   std::vector<Node*> array(magicNum+1, NULL);
   /*
   for(int i = 0; i < magicNum; i++){
@@ -321,6 +324,7 @@ void FHeap::consolidate(void){
     if(DEBUG) {
       std::cerr << "consolidate: d=" << d << std::endl;
       if(d >= magicNum) std::cerr << "d >= magicNum" << std::endl;
+	std::cerr << "magicNum= " << magicNum << std::endl; 
     } 
     while(d <= magicNum && array[d] != NULL){
       Node *y = array[d]; // another node with the same degree as x
@@ -382,9 +386,12 @@ void FHeap::consolidate(void){
   if(DEBUG){
     std::cerr << "End of consolidate: min="<<min;
     if(min != NULL) std::cerr <<" min.right="<<min->right();
+    else{
+	std::cerr << " \t\tMIN=NULL!" << std::endl; 
+    	exit(EXIT_FAILURE);
+    }	
     std::cerr<<std::endl;
   }
-
 }
 
 void FHeap::cut(Node *x){
@@ -417,7 +424,7 @@ void FHeap::cut(Node *x){
 
     // decrement y.degree
     int parentD = x->parent()->degree();
-    x->parent()->setDegree(parentD-1);
+    if(parentD > 0) x->parent()->setDegree(parentD-1);
 
     // add x to root list of H
     insertNode(x);
