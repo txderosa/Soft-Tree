@@ -138,8 +138,8 @@ public:
       
   }
 
-  void removeFromRootList(void){
-    if(DEBUG) std::cerr << "Called removeFromRootList(void)" << std::endl;
+  void removeFromSiblings(void){
+    if(DEBUG) std::cerr << "Called removeFromSiblings(void)" << std::endl;
     // has siblings, adjust their pointers
     if( (n_left == this) && (n_right == this) ){
       // only child
@@ -153,7 +153,8 @@ public:
 	if(DEBUG){
 	  std::cerr << "remove: me=" << this << " " << n_vertex.id() << std::endl;
 	  std::cerr << "remove: sibling=" << sibling << std::endl;
-	  std::cerr << "remove: sibling_right=" << sibling->n_right << std::endl;
+     	  std::cerr << "remove: sibling_right=" << sibling->n_right << std::endl;
+	 
 	}
 	sibling->n_right = sibling;
 	sibling->n_left = sibling;
@@ -344,8 +345,13 @@ void FHeap::consolidate(void){
   // build new FHeap
   min = NULL;
   for(int i = 0; i <= magicNum; i++){
+    std::cerr << "consolidate: array["<<i<<"]=" << array[i] << std::endl;
     if(array[i] != NULL){
       std::cerr << "inserting " << array[i] << std::endl;
+      // severe ties to siblings before inserting
+      array[i]->removeFromSiblings(); // siblings no longer point to us
+      array[i]->setLeft(array[i]);
+      array[i]->setRight(array[i]);
       insertNode(array[i]);
       /*
       if(min == NULL){
@@ -483,11 +489,11 @@ void FHeap::insertNode(Node *n)
   if(n->data().id() >= capacity){
     exit(EXIT_FAILURE);
   }
-  if(min == NULL){// || rootList == NULL){
+  if(min == NULL || rootList == NULL){
     // create root list for H containing just n
     rootList = n;
     min = n;
-    std::cerr << "update min" << std::endl;
+    std::cerr << "insertNode: update min=" << n << std::endl;
     size = 1;
   }
   else {
@@ -498,12 +504,20 @@ void FHeap::insertNode(Node *n)
       if(rootList != NULL) std::cerr<< " rootLeft=" << rootList->left();
       std::cerr <<  std::endl;
     }
-    Node *rootLeft = rootList->left();
-    n->setLeft(rootLeft);
-    n->setRight(rootList);
-    rootLeft->setRight(n);
-    rootList->setLeft(n);
-    size = size + 1;   
+    if(rootList != NULL){
+      Node *rootLeft = rootList->left();
+      n->setLeft(rootLeft);
+      n->setRight(rootList);
+      rootLeft->setRight(n);
+      rootList->setLeft(n);
+      size = size + 1;   
+    }
+    /*
+    else{
+      // root list is empty!
+      rootList = n;
+    }
+    */
   }
   
   if(DEBUG) std::cerr << "insertNode: rootList=" << rootList << " rootLeft=" << rootList->left() <<  std::endl;
@@ -511,7 +525,7 @@ void FHeap::insertNode(Node *n)
   if(n->key() < min->key())
     {
       min = n;
-      std::cerr << "update min" << std::endl;
+      std::cerr << "insertNode: update min" << std::endl;
     }
   
   // update handles
@@ -538,12 +552,16 @@ Vertex FHeap::extractMin(void)
 	size = 0;
       }
       else{
-	if(z == rootList)
+	if(z == rootList){
+	  std::cerr << "extractMin assgin rootList = rootList.right" << std::endl;
+	  std::cerr << "\tbefore: " << rootList << " " << rootList->right() << std::endl;
 	  rootList = rootList->right();
+	  std::cerr << "\tafter: " << rootList << " " << rootList->right() << std::endl;
+	}
 	std::cerr << "extractMin: rootList=" << rootList << std::endl;
-	z->removeFromRootList();
+	z->removeFromSiblings();
 	size--;
-	std::cerr << "extractMin: size=" << size << std::endl;
+	std::cerr << "extractMin: size after extract=" << size << std::endl;
       }
       // add children to rootList
       Node *cur = z->childList();
@@ -659,7 +677,10 @@ int FHeap::getKey(int vertexID){
 void FHeap::showHandles(void){
   if(DEBUG){
     for(int i = 0; i < capacity; i++){
-      std::cerr << i << ": " << handles[i] << std::endl;
+      std::cerr << i << ": " << handles[i];
+      if(handles[i] != NULL)
+	std::cerr << " " << handles[i]->key();
+      std::cerr << std::endl;
     }
   }
 }
