@@ -6,7 +6,7 @@
 #include "MST.h"
 #include "Timer.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 void usage(char *progName){
   std::cerr << "usage: " << progName << " <input-file> <output-file>" << std::endl;
@@ -81,7 +81,7 @@ int main(int argc, char **argv){
     
     fout << "Kruskal: ";
     kruskal_timer.printElapsedSeconds(fout);
-    //kruskal_mst.printEdges(fout);
+    kruskal_mst.printEdges(fout);
     if(DEBUG){
       std::cerr << "Kruskal MST:" << std::endl;
       kruskal_mst.showEdges();
@@ -97,7 +97,7 @@ int main(int argc, char **argv){
     
     fout << "Fib Heap: ";
     fib_timer.printElapsedSeconds(fout);
-    //fib_mst.printEdges(fout);
+    fib_mst.printEdges(fout);
     if(DEBUG){
       std::cerr << "Fib MST:" << std::endl;
       extractMST(fib_mst);

@@ -1,6 +1,6 @@
 #include "MST.h"
 
-#define DEBUG 1 // 1 to turn debug on
+#define DEBUG 0 // 1 to turn debug on
 
 bool keyComp(Vertex v1, Vertex v2)
 {

@@ -1,7 +1,7 @@
 #include "FHeap.h"
 
 #define DEBUG 1 // 1 to turn debug on for FHeap
-#define N_DEBUG 1 // 1 to turn debug on for Node
+#define N_DEBUG 0 // 1 to turn debug on for Node
 
 class Node {
   // each node contains a pointer to its parent and to any one of its children
@@ -177,6 +177,7 @@ public:
 
   void setCLNULL(void){
     n_childList = NULL;
+    n_degree = n_numChildren = 0;
   }
   void setPCLNULL(void){
     n_parent = NULL;
@@ -390,14 +391,16 @@ void FHeap::cut(Node *x){
   if(DEBUG) std::cerr << "Called FHeap::cut(Node*)" << std::endl;
   if(x->parent() != NULL){
     //remove x from childList of y
+    // first remove parent's reference to us
     if( (x->left() == x) && (x->right() == x) ){
       // only child, so parent's childList = x
-      x->setCLNULL();
+      x->parent()->setCLNULL();
     }
     else if(x == x->parent()->childList()){
-      // has siblings, update parent's childList pointer, because the current one will be invalid soon
+      // has siblings, update parent's childList pointer, because the current one (which points to us) will be invalid soon
       x->parent()->shiftCL();
     }
+   
     if(x->left() == x->right()){
       // has 1 sibling, set sibling to point to itself
       Node *sibling = x->left();
@@ -655,12 +658,12 @@ void FHeap::decreaseKey(int vertexID, int k)
       cut(x);
       cascadingCut(y);
     }
-  /*
+  
   if(min == NULL){
     std::cerr << "decreaseKey: min is NULL" << std::endl;
-    return;
+    exit(EXIT_FAILURE);
   } 
-  */ 
+   
   if(x->key() < min->key())
     {
       min = x;  
@@ -703,7 +706,7 @@ void FHeap::showHandles(void){
     for(int i = 0; i < capacity; i++){
       std::cerr << i << ": " << handles[i];
       if(handles[i] != NULL)
-	std::cerr << " " << handles[i]->key();
+	std::cerr << " " << handles[i]->key() << " left=" << handles[i]->left() << " right=" << handles[i]->right() << " parent=" << handles[i]->parent() << " childList=" << handles[i]->childList();
       std::cerr << std::endl;
     }
   }

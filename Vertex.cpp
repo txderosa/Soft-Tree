@@ -1,7 +1,7 @@
 #ifndef VERTEX_CPP
 #define VERTEX_CPP
 
-#define V_DEBUG 1 // 1 to turn debug on
+#define V_DEBUG 0 // 1 to turn debug on
 
 #include <iostream>
 
