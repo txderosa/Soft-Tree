@@ -156,8 +156,7 @@ public:
 	if(DEBUG){
 	  std::cerr << "remove: me=" << this << " " << n_vertex.id() << std::endl;
 	  std::cerr << "remove: sibling=" << sibling << std::endl;
-     	  std::cerr << "remove: sibling_right=" << sibling->n_right << std::endl;
-	 
+     	  std::cerr << "remove: sibling_right=" << sibling->n_right << std::endl; 
 	}
 	sibling->n_right = sibling;
 	sibling->n_left = sibling;
@@ -299,6 +298,31 @@ void FHeap::fibUnion(FHeap h2){
 
 void FHeap::consolidate(void){
   if(DEBUG) std::cerr << "Called FHeap::consolidate(void)" << std::endl;
+  /*
+  // NOTE: rootList==NULL, then min was only child in rootList and had 0 children
+  if(rootList == NULL && size == 0){
+    if(DEBUG){
+      std::cerr << "consolidate: extracted last node, resetting min to NULL... size=" << size << std::endl;
+    }
+    min = NULL;
+    return;
+  }
+  */
+  /*
+  // NOTE: size = size after extracting min
+  // if no nodes left, reset pointers
+  if(size == 0){
+    min = NULL;
+    rootList = NULL;
+    return;
+  }
+  // if only 1 item, don't need to consolidate
+  if(size == 1){
+    rootList = min->right();
+    min = min->right();
+    return;
+    }
+  */
   double phi = 1.61803;
   int magicNum = (int)std::floor(std::log10(size)/std::log10(phi));
 	int max_degree = static_cast<int>(floor(log(static_cast<double>(size))/log(static_cast<double>(1 + sqrt(static_cast<double>(5)))/2)));
@@ -316,7 +340,16 @@ void FHeap::consolidate(void){
   std::cerr << "consolidate: rootList=" << rootList << std::endl;
   std::cerr << "consolidate: size=" << size << std::endl;
   Node *w = rootList;
-  for(int i = 0; i < size; i++){
+  Node *begin = w;
+
+  // count number of nodes in rootList
+  int rootSize = 0;
+  do{
+    rootSize++;
+    w = w->right();
+  } while(w != begin);
+  
+  for(int i = 0; i < rootSize; i++){
     Node *x = w;
     std::cerr << "consolidate: x=" << x << " right=" << w->right() << std::endl;
     w = w->right();
@@ -348,7 +381,7 @@ void FHeap::consolidate(void){
       std::cerr << "set array["<<d<<"]=" <<x->data().id()<< std::endl;
       array[d] = x;    
     }
-  }
+  } //while(w != begin);
   // clear out H
   /*
   Node cleaner;
@@ -366,6 +399,7 @@ void FHeap::consolidate(void){
       array[i]->removeFromSiblings(); // siblings no longer point to us
       array[i]->setLeft(array[i]);
       array[i]->setRight(array[i]);
+      size--; // adding node that is already in heap (so -1, then insert will +1 again, this net=0)
       insertNode(array[i]);
       /*
       if(min == NULL){
@@ -427,6 +461,7 @@ void FHeap::cut(Node *x){
     if(parentD > 0) x->parent()->setDegree(parentD-1);
 
     // add x to root list of H
+    size--; // adding node that is already in heap (so -1, then insert will +1 again, this net=0)
     insertNode(x);
     x->setParent(NULL);
     x->setMarked(false);
@@ -523,7 +558,8 @@ void FHeap::insertNode(Node *n)
     rootList = n;
     min = n;
     std::cerr << "insertNode: update min=" << min << std::endl;
-    size = 1;
+    size++;
+    //size = 1;
   }
   else {
     // heap is not empty
@@ -575,10 +611,11 @@ Vertex FHeap::extractMin(void)
     {
       if(z->right() == z){
 	// z is only node in rootList
-	std::cerr << "z.right=" << z->right() << " z=" << z << std::endl;
+	std::cerr << "z is only node in rootList: z.right=" << z->right() << " z=" << z << std::endl;
 	rootList = NULL;
 	std::cerr << "extractMin: rootList=" << rootList << std::endl;
-	size = 0;
+	size--;
+	
       }
       else{
 	if(z == rootList){
@@ -606,6 +643,7 @@ Vertex FHeap::extractMin(void)
 	  if(cur == NULL) break;
 	  Node *tmp = cur->right();
 	  cur->setParent(NULL);
+	  size--; // adding node that is already in heap (so -1, then insert will +1 again, this net=0)
 	  insertNode(cur);
 	  cur = tmp;
 	  if(tmp == NULL) break;
