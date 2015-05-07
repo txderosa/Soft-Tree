@@ -32,9 +32,16 @@ gen:	$(GEN_OBJ_FILES)
 
 clean:
 	rm -f *~ *# *.o *.exe $(TARGET) $(GEN)
+	rm -f -r analysis/
 
 # run analysis
-analysis: $(TARGET)
+analysis: $(TARGET) gen
+	if [ ! -d "analysis/" ]; then mkdir analysis ; fi 
+	./$(GEN) 1000 analysis/1000_vertices.txt
+	./$(GEN) 2000 analysis/2000_vertices.txt
+	./$(GEN) 3000 analysis/3000_vertices.txt
+	./$(GEN) 4000 analysis/4000_vertices.txt
+	./$(GEN) 5000 analysis/5000_vertices.txt
 	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run1.txt
 	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run2.txt
 	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run3.txt
