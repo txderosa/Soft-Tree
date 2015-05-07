@@ -113,8 +113,7 @@ std::vector<Edge> Graph::edges(void){
 }
 
 void Graph::printEdges(std::ostream &out){
-  out << "Called Graph::showEdges(void)" << std::endl;
-  out << "Edge List:" << std::endl;
+  if(DEBUG) std::cerr << "Called Graph::printEdges(void)" << std::endl;
   for(std::vector<Edge>::const_iterator it = edgeList.begin(); it != edgeList.end(); it++){
     out << it->u() << " " << it->v() << " " << it->weight() << std::endl;
   }
@@ -154,4 +153,14 @@ void Graph::showEdges(void) const{
     }
   }
   
+}
+
+int Graph::sumEdges(void) const{
+  if(DEBUG) std::cerr << "Called Graph::sumEdges(void)" << std::endl;
+  long long sum = 0;
+  for(std::vector<Edge>::const_iterator it = edgeList.begin(); it != edgeList.end(); it++){
+    sum += it->weight();
+  }    
+
+  return sum;
 }

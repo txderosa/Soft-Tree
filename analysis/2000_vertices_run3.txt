@@ -1,0 +1,41 @@
+There are 10 graphs in analysis/2000_vertices.txt
+Graph 1: 2000 vertices, 199900 edges
+Kruskal: 0.0904150
+Prim: 2.1717010
+Fib Heap: 0.0486230
+Graph 2: 2000 vertices, 399800 edges
+Kruskal: 0.1824280
+Prim: 3.9778110
+Fib Heap: 0.0897320
+Graph 3: 2000 vertices, 599700 edges
+Kruskal: 0.2860630
+Prim: 5.6223480
+Fib Heap: 0.1306820
+Graph 4: 2000 vertices, 799600 edges
+Kruskal: 0.3763950
+Prim: 7.3527710
+Fib Heap: 0.1721420
+Graph 5: 2000 vertices, 999500 edges
+Kruskal: 0.4740970
+Prim: 9.1482020
+Fib Heap: 0.2116600
+Graph 6: 2000 vertices, 1199400 edges
+Kruskal: 0.5825970
+Prim: 10.8735910
+Fib Heap: 0.2521890
+Graph 7: 2000 vertices, 1399300 edges
+Kruskal: 0.6786130
+Prim: 12.6420480
+Fib Heap: 0.2920130
+Graph 8: 2000 vertices, 1599200 edges
+Kruskal: 0.7813630
+Prim: 14.4544970
+Fib Heap: 0.3327720
+Graph 9: 2000 vertices, 1799100 edges
+Kruskal: 0.8802650
+Prim: 16.1627180
+Fib Heap: 0.3732360
+Graph 10: 2000 vertices, 1999000 edges
+Kruskal: 0.9817140
+Prim: 17.9325940
+Fib Heap: 0.4130370

@@ -8,6 +8,7 @@
 #include "Edge.cpp"
 #include "Vertex.cpp"
 
+// first = neighbor's id; second = weight of edge between them
 typedef std::pair<int,int> Neighbor;
 
 class Graph{
@@ -48,6 +49,7 @@ class Graph{
   /*** for debugging ***/
   void showAdj(bool verbose) const;
   void showEdges(void) const;
+  int sumEdges(void) const;
 
 }; // end of class Graph
 

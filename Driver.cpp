@@ -63,50 +63,50 @@ int main(int argc, char **argv){
     Kruskal(graph, kruskal_mst);
     kruskal_timer.end();
     
-    /*
+    
     Graph prim_mst(nVertices);
     Timer prim_timer;
     prim_timer.start();
     Prim(graph, prim_mst);
     prim_timer.end();
-
-    Graph soft_mst(nVertices);
-    Timer soft_timer;
-    soft_timer.start();
-    Soft(graph, soft_mst);
-    soft_timer.end();
-    */
-
+    
+    Graph fib_mst(nVertices);
+    Timer fib_timer;
+    fib_timer.start();
+    Fib(graph, fib_mst);
+    fib_timer.end();
+    
     // report timings
     fout << "Graph " << i+1 << ": " << nVertices << " vertices, " << nEdges << " edges" << std::endl;
     
     fout << "Kruskal: ";
     kruskal_timer.printElapsedSeconds(fout);
-    //kruskal_mst.printEdges(fout);
     if(DEBUG){
       std::cerr << "Kruskal MST:" << std::endl;
       kruskal_mst.showEdges();
+      kruskal_mst.printEdges(fout);
+      fout << "\tKRUSKALS: SUM OF EDGES = " << kruskal_mst.sumEdges() << std::endl;// " numEdges=" << kruskal_mst.numEdges() << std::endl;
     }
 
-    fout << "Prim: " << 0.0 << std::endl;
-    //prim_timer.printElapsedSeconds(fout);
-    //prim_mst.printEdges(fout);
-    /*
+    fout << "Prim: ";
+    prim_timer.printElapsedSeconds(fout);
+    extractMST(prim_mst);
     if(DEBUG){
       std::cerr << "Prim MST:" << std::endl;
       prim_mst.showEdges();
+      prim_mst.printEdges(fout);  
+      fout << "\tPRIMS: SUM OF EDGES = " << prim_mst.sumEdges() << std::endl;//" numEdges=" << prim_mst.numEdges() << std::endl;
     }
-    */
-
-    fout << "Soft Heap: " << 0.0 << std::endl;
-    //soft_timer.printElapsedSeconds(fout);
-    //soft_mst.printEdges(fout);
-    /*
+    
+    fout << "Fib Heap: ";
+    fib_timer.printElapsedSeconds(fout);
+    extractMST(fib_mst);
     if(DEBUG){
-      std::cerr << "Soft MST:" << std::endl;
-      soft_mst.showEdges();
+      std::cerr << "Fib MST:" << std::endl;
+      fib_mst.showEdges();
+      fib_mst.printEdges(fout);	      
+      fout << "\tFIB-HEAP: SUM OF EDGES = " << fib_mst.sumEdges() << std::endl;// << " numEdges=" << fib_mst.numEdges() << std::endl;
     }
-    */
 
   }
   

@@ -1,4 +1,4 @@
-TARGET = SoftHeap
+TARGET = MSTCompare
 GEN = GraphGen
 
 SRC = \
@@ -6,7 +6,9 @@ SRC = \
 	Timer.cpp \
 	MST.cpp \
 	Graph.cpp \
-	DisjointComps.cpp 
+	DisjointComps.cpp \
+	FHeap.cpp
+#	SoftHeap.cpp
 
 GEN_SRC = \
 	Generator.cpp 
@@ -31,6 +33,30 @@ gen:	$(GEN_OBJ_FILES)
 clean:
 	rm -f *~ *# *.o *.exe $(TARGET) $(GEN)
 
-# REMOVE AFTER DONE WITH TESTING TIMER
-time:	Timer.o TimerTest.o
-	g++ $(CPPFLAGS) Timer.o TimerTest.o -o test.exe
+# run analysis
+analysis: $(TARGET)
+	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run1.txt
+	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run2.txt
+	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run3.txt
+	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run4.txt
+	./$(TARGET) analysis/1000_vertices.txt analysis/1000_vertices_run5.txt
+	./$(TARGET) analysis/2000_vertices.txt analysis/2000_vertices_run1.txt
+	./$(TARGET) analysis/2000_vertices.txt analysis/2000_vertices_run2.txt
+	./$(TARGET) analysis/2000_vertices.txt analysis/2000_vertices_run3.txt
+	./$(TARGET) analysis/2000_vertices.txt analysis/2000_vertices_run4.txt
+	./$(TARGET) analysis/2000_vertices.txt analysis/2000_vertices_run5.txt
+	./$(TARGET) analysis/3000_vertices.txt analysis/3000_vertices_run1.txt
+	./$(TARGET) analysis/3000_vertices.txt analysis/3000_vertices_run2.txt
+	./$(TARGET) analysis/3000_vertices.txt analysis/3000_vertices_run3.txt
+	./$(TARGET) analysis/3000_vertices.txt analysis/3000_vertices_run4.txt
+	./$(TARGET) analysis/3000_vertices.txt analysis/3000_vertices_run5.txt
+	./$(TARGET) analysis/4000_vertices.txt analysis/4000_vertices_run1.txt
+	./$(TARGET) analysis/4000_vertices.txt analysis/4000_vertices_run2.txt
+	./$(TARGET) analysis/4000_vertices.txt analysis/4000_vertices_run3.txt
+	./$(TARGET) analysis/4000_vertices.txt analysis/4000_vertices_run4.txt
+	./$(TARGET) analysis/4000_vertices.txt analysis/4000_vertices_run5.txt
+	./$(TARGET) analysis/5000_vertices.txt analysis/5000_vertices_run1.txt
+	./$(TARGET) analysis/5000_vertices.txt analysis/5000_vertices_run2.txt
+	./$(TARGET) analysis/5000_vertices.txt analysis/5000_vertices_run3.txt
+	./$(TARGET) analysis/5000_vertices.txt analysis/5000_vertices_run4.txt
+	./$(TARGET) analysis/5000_vertices.txt analysis/5000_vertices_run5.txt
