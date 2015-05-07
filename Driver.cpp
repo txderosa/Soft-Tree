@@ -81,27 +81,31 @@ int main(int argc, char **argv){
     
     fout << "Kruskal: ";
     kruskal_timer.printElapsedSeconds(fout);
-    kruskal_mst.printEdges(fout);
     if(DEBUG){
       std::cerr << "Kruskal MST:" << std::endl;
       kruskal_mst.showEdges();
+      kruskal_mst.printEdges(fout);
+      fout << "\tKRUSKALS: SUM OF EDGES = " << kruskal_mst.sumEdges() << std::endl;// " numEdges=" << kruskal_mst.numEdges() << std::endl;
     }
 
     fout << "Prim: ";
     prim_timer.printElapsedSeconds(fout);
-    //prim_mst.printEdges(fout);  
+    extractMST(prim_mst);
     if(DEBUG){
       std::cerr << "Prim MST:" << std::endl;
       prim_mst.showEdges();
+      prim_mst.printEdges(fout);  
+      fout << "\tPRIMS: SUM OF EDGES = " << prim_mst.sumEdges() << std::endl;//" numEdges=" << prim_mst.numEdges() << std::endl;
     }
     
     fout << "Fib Heap: ";
     fib_timer.printElapsedSeconds(fout);
-    fib_mst.printEdges(fout);
+    extractMST(fib_mst);
     if(DEBUG){
       std::cerr << "Fib MST:" << std::endl;
-      extractMST(fib_mst);
       fib_mst.showEdges();
+      fib_mst.printEdges(fout);	      
+      fout << "\tFIB-HEAP: SUM OF EDGES = " << fib_mst.sumEdges() << std::endl;// << " numEdges=" << fib_mst.numEdges() << std::endl;
     }
 
   }

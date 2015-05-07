@@ -13,6 +13,73 @@ bool keyComp(Vertex v1, Vertex v2)
 
 void Prim(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Prim(Graph, Graph&)" << std::endl;
+  // copy g into mst, and build the MST inside of mst
+  mst = g;
+
+  std::vector<Vertex> Q; // Q = emptyset
+  /*
+  std::vector<bool> containsVertex;
+  for(int i = 0; i < mst.numVertices(); i++){
+    containsVertex.push_back(true);
+  }
+  */
+
+  // fixed initial starting vertex: first vertex in G.V
+  mst.vertex(0).setKey(0);
+  Vertex r = mst.vertex(0);
+  Q.push_back(r);
+
+  // insert vertices into Q
+  for(int i = 1; i < mst.numVertices(); i++){
+    mst.vertex(i).setKey(std::numeric_limits<int>::max());
+    Q.push_back(mst.vertex(i));
+  }
+
+  Vertex u;
+  int u_id;
+  while(!Q.empty()){ 
+    // make Q into a min-heap
+    std::make_heap(Q.begin(), Q.end(), keyComp);
+    
+    // Q.extractMin();
+    u = Q.front(); std::pop_heap(Q.begin(), Q.end(), keyComp); Q.pop_back(); 
+    u_id = u.id();
+    //containsVertex[u_id] = false;
+    if(DEBUG){
+      std::cout << "Vertex u = " << u.id() << std::endl;
+      //if(containsVertex[u_id]) std::cerr << "is in Q" << std::endl;
+    } 
+
+    std::vector<Neighbor> adj_u = mst.adj(u_id);
+    for(std::vector<Neighbor>::iterator it = adj_u.begin(); it != adj_u.end(); it++){
+      int neighborID = it->first;
+      //int neighborKey = mst.vertex(neighborID).key();
+      //bool containsNeighbor = containsVertex[neighborID];
+      int neighborKey;
+      std::vector<Vertex>::iterator neighborIt = std::find(Q.begin(), Q.end(), g.vertex(neighborID));
+      bool containsNeighbor = neighborIt != Q.end();
+      if(containsNeighbor)
+	neighborKey = neighborIt->key();
+      else
+	continue;
+      int weight = it->second;
+      if(DEBUG){
+	std::cout << " Adjacent vertex = " << neighborID;
+	//if(containsNeighbor) std::cerr << " is in Q" << std::endl;
+	//else std::cerr << " NOT in Q";
+	std::cerr << std::endl;
+      }
+      
+      if( containsNeighbor && (weight < neighborKey) ){
+	mst.vertex(neighborID).setParent(u_id);
+	neighborIt->setKey(weight);
+	mst.vertex(neighborID).setKey(weight);
+      }
+    }
+    
+  } // end of algorithm
+
+  /*
   std::vector<Vertex> Q;
   //Vertex r = g.vertex(0);
   for(int i = 0; i < g.numVertices(); i++)
@@ -37,7 +104,10 @@ void Prim(Graph g, Graph &mst){
     std::vector<Neighbor> adj_u = g.adj(u.id());
     for(unsigned int i = 0; i < adj_u.size(); i ++)
     {
-      if(g.vertex(std::get<0>(adj_u[i])).key() >= 0 && std::get<1>(adj_u[i]) < g.vertex(std::get<0>(adj_u[i])).key())
+      //if(g.vertex(std::get<0>(adj_u[i])).key() >= 0 && std::get<1>(adj_u[i]) < g.vertex(std::get<0>(adj_u[i])).key())
+      bool containsNeighbor = false;
+      if(std::find(Q.begin(), Q.end(), g.vertex(adj_u[i].first)) != Q.end()) containsNeighbor = true;
+      if(containsNeighbor && std::get<1>(adj_u[i]) < g.vertex(std::get<0>(adj_u[i])).key())
       {
 	if(DEBUG) std::cout << " Adjacent vertex = " << std::get<0>(adj_u[i]) << std::endl;
         g.vertex(std::get<0>(adj_u[i])).setParent(u.id());
@@ -45,11 +115,10 @@ void Prim(Graph g, Graph &mst){
       }
     }
   }
-  /*
   
   for(int i = 0; i < g.numVertices(); i++)
   {
-    if(g.vertex(i).key() != -1)
+    if(g.vertex(i).key() != -1 && g.vertex(i).parent() != -1)
     {
       mst.insertEdge(g.vertex(i).id(), g.vertex(i).parent(), g.vertex(i).key());
       //g.vertex(g.vertex(i).parent()).setKey(-1);
@@ -57,7 +126,23 @@ void Prim(Graph g, Graph &mst){
       //g.vertex(i).setParent(-1);
     }
   }
+
+  mst = g;
   */
+  
+}
+
+void extractPrimMST(Graph &mst){
+  Graph tmp(mst.numVertices());
+  for(int i = 0; i < mst.numVertices(); i++)
+    {
+      if(mst.vertex(i).key() != -1 && mst.vertex(i).parent() != -1)
+	{
+	  tmp.insertEdge(mst.vertex(i).id(), mst.vertex(i).parent(), mst.vertex(i).key());
+	  mst.vertex(mst.vertex(i).parent()).setKey(-1);
+	}
+    }
+  mst = tmp;
 }
 
 // comp func to sort edges by weight
@@ -98,7 +183,7 @@ void Kruskal(Graph g, Graph &mst){
 
 void Fib(Graph g, Graph &mst){
   if(DEBUG) std::cerr << "Called Fib(Graph, Graph&)" << std::endl;
-  // copy g into mst, and work build the MST inside of mst
+  // copy g into mst, and build the MST inside of mst
   mst = g;
 
   FHeap Q(g.numVertices()); // Q = emptyset
@@ -114,16 +199,14 @@ void Fib(Graph g, Graph &mst){
     Q.insertVertex(mst.vertex(i));
   }
 
-  Q.showHandles();
+  if(DEBUG) Q.showHandles();
   
   Vertex u;
   int u_id;
-  while(!Q.empty()){ // !!! Q.empty() needs to be implemented
+  while(!Q.empty()){
     u = Q.extractMin();
     u_id = u.id();
     if(DEBUG) std::cout << "Vertex u = " << u.id() << std::endl;
-    //Q[0].setKey(-1); !!! what is this for???
-    //Q.erase(Q.begin()); !!! this should be done in extractMin
 
     std::vector<Neighbor> adj_u = mst.adj(u_id);
     for(std::vector<Neighbor>::iterator it = adj_u.begin(); it != adj_u.end(); it++){
@@ -136,9 +219,9 @@ void Fib(Graph g, Graph &mst){
 	continue;
       int weight = it->second;
       if(DEBUG) std::cout << " Adjacent vertex = " << neighborID << std::endl;      
-      if( Q.contains(neighborID) && (weight < neighborKey) ){ //!!! Q.contains() needs to be implemented; could use g to track inside by using g.vertex().setKey(-1) trick?
+      if( Q.contains(neighborID) && (weight < neighborKey) ){
 	mst.vertex(neighborID).setParent(u_id);
-	Q.decreaseKey(neighborID, weight); //!!! Q.decreaseKey needs to be implemented
+	Q.decreaseKey(neighborID, weight);
 	mst.vertex(neighborID).setKey(weight);
       }
     }

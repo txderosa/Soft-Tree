@@ -49,6 +49,7 @@ class Graph{
   /*** for debugging ***/
   void showAdj(bool verbose) const;
   void showEdges(void) const;
+  int sumEdges(void) const;
 
 }; // end of class Graph
 

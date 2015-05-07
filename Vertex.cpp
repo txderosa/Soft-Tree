@@ -46,6 +46,10 @@ public:
     return *this;
   }
 
+  bool operator==(const Vertex &v){
+    return v_id == v.v_id;
+  }
+
   int id(void) const{ return v_id; }
 
   int parent(void) const{ return v_parent; }

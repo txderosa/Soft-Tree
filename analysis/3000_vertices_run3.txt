@@ -1,0 +1,41 @@
+There are 10 graphs in analysis/3000_vertices.txt
+Graph 1: 3000 vertices, 449850 edges
+Kruskal: 0.2102630
+Prim: 6.4730700
+Fib Heap: 0.1044440
+Graph 2: 3000 vertices, 899700 edges
+Kruskal: 0.4275100
+Prim: 12.2655990
+Fib Heap: 0.1965390
+Graph 3: 3000 vertices, 1349550 edges
+Kruskal: 0.6552930
+Prim: 18.2135900
+Fib Heap: 0.2893320
+Graph 4: 3000 vertices, 1799400 edges
+Kruskal: 0.8911460
+Prim: 24.2821580
+Fib Heap: 0.3796320
+Graph 5: 3000 vertices, 2249250 edges
+Kruskal: 1.1157550
+Prim: 30.0791460
+Fib Heap: 0.4704890
+Graph 6: 3000 vertices, 2699100 edges
+Kruskal: 1.3624300
+Prim: 36.2194050
+Fib Heap: 0.5620060
+Graph 7: 3000 vertices, 3148950 edges
+Kruskal: 1.5962930
+Prim: 42.0545010
+Fib Heap: 0.6645640
+Graph 8: 3000 vertices, 3598800 edges
+Kruskal: 1.8292400
+Prim: 48.0381800
+Fib Heap: 0.7557570
+Graph 9: 3000 vertices, 4048650 edges
+Kruskal: 2.1017170
+Prim: 54.0305060
+Fib Heap: 0.8485980
+Graph 10: 3000 vertices, 4498500 edges
+Kruskal: 2.3291330
+Prim: 59.6496700
+Fib Heap: 0.9401880
