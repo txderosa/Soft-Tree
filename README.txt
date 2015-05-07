@@ -9,6 +9,9 @@ To build the program:
 To run the program:
    ./MSTCompare <input-file-name> <output-file-name>
 
+To automatically run a default set of tests (warning: will take a LONG time!):
+   make analysis
+
 Notes:
    * The input-file is expected to contain any number of graphs.
    * The output-file contains the time (in seconds) it took each of 
